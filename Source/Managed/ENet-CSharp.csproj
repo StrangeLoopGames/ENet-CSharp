@@ -1,8 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Mirasrael.ENet</AssemblyName>
+  </PropertyGroup>
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>netstandard2.0;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netcoreapp2.0;net35</TargetFrameworks>
     <RootNamespace>ENet</RootNamespace>
   </PropertyGroup>
 
@@ -16,6 +19,11 @@
     <Optimize>true</Optimize>
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
     <LangVersion>3</LangVersion>
+    <OutputPath>..\..\lib\</OutputPath>
   </PropertyGroup>
+
+  <Target Name="CopyLicenseFile" BeforeTargets="BeforeBuild">
+    <Copy SourceFiles="..\..\LICENSE" DestinationFiles="..\..\license.txt"/>
+  </Target>
 
 </Project>
