@@ -23,7 +23,7 @@
   </PropertyGroup>
 
   <Target Name="CopyLicenseFile" BeforeTargets="BeforeBuild">
-    <Copy SourceFiles="..\..\LICENSE" DestinationFiles="..\..\license.txt"/>
+    <Copy SourceFiles="..\..\LICENSE" DestinationFiles="..\..\license.txt" />
   </Target>
 
 </Project>
