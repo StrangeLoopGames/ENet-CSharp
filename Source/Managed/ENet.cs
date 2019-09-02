@@ -3,6 +3,7 @@
  *  Copyright (c) 2013 James Bellinger
  *  Copyright (c) 2016 Nate Shoffner
  *  Copyright (c) 2018 Stanislav Denisov
+ *  Copyright (c) 2019 Alexander Bondarev
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -23,20 +24,15 @@
  *  SOFTWARE.
  */
 
+using System.Runtime.CompilerServices;
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
 
+[assembly: InternalsVisibleTo("Mirasrael.ENet.Tests")]
+
 namespace ENet
 {
-    internal static class Constants
-    {
-        public const UnmanagedType SizeT                             = UnmanagedType.SysUInt;
-        public const int           EnetProtocolMaximumPacketCommands = 32;
-        public const int           EnetProtocolMaximumMtu            = 4096;
-        public const int           EnetBufferMaximum                 = 1 + 2 * EnetProtocolMaximumPacketCommands;
-    }
-
     [Flags]
     public enum PacketFlags
     {
@@ -97,126 +93,6 @@ namespace ENet
         public AllocCallback    malloc;
         public FreeCallback     free;
         public NoMemoryCallback noMemory;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct ENetList
-    {
-        public ENetListNode sentinel;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct ENetListNode
-    {
-        public IntPtr next;
-        public IntPtr previous;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct ENetProtocolCommandHeader
-    {
-        public byte   command;
-        public byte   channelId;
-        public ushort reliableSequenceNumber;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct ENetProtocolConnect
-    {
-        public ENetProtocolCommandHeader header;
-        public ushort                    outgoingPeerID;
-        public byte                      incomingSessionID;
-        public byte                      outgoingSessionID;
-        public uint                      mtu;
-        public uint                      windowSize;
-        public uint                      channelCount;
-        public uint                      incomingBandwidth;
-        public uint                      outgoingBandwidth;
-        public uint                      packetThrottleInterval;
-        public uint                      packetThrottleAcceleration;
-        public uint                      packetThrottleDeceleration;
-        public uint                      connectID;
-        public uint                      data;
-    }
-
-    [StructLayout(LayoutKind.Explicit)]
-    internal struct ENetBuffer
-    {
-#if UNIX
-        private readonly IntPtr data;
-        [MarshalAs(Constants.SizeT)] private readonly uint dataLength;
-#else
-        [MarshalAs(Constants.SizeT)] private readonly uint   dataLength;
-        private readonly                              IntPtr data;
-#endif
-    }
-
-    /// <summary>
-    /// Actually union of different ENetProtocol* structs, but we can use just ENetProtocolConnect as a bigger one.
-    /// </summary>
-    [StructLayout(LayoutKind.Explicit)]
-    internal struct ENetProtocol
-    {
-        public ENetProtocolConnect connect;
-    }
-
-    [StructLayout(LayoutKind.Auto)]
-    internal struct ENetCompressor
-    {
-        public IntPtr context;
-        public IntPtr compress;
-        public IntPtr decompress;
-        public IntPtr destroy;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    internal struct ENetHost
-    {
-        public                              IntPtr   socket;
-        public                              IntPtr   address;
-        public                              uint     incomingBandwidth;
-        public                              uint     outgoingBandwidth;
-        public                              uint     bandwidthThrottleEpoch;
-        public                              uint     mtu;
-        public                              uint     randomSeed;
-        public                              int      recalculateBandwidthLimits;
-        public                              IntPtr   peers; /**< array of peers allocated for this host */
-        [MarshalAs(Constants.SizeT)] public uint     peerCount; /**< number of peers allocated for this host */
-        [MarshalAs(Constants.SizeT)] public uint     channelLimit; /**< maximum number of channels allowed for connected peers */
-        public                              uint     serviceTime;
-        public                              ENetList dispatchQueue;
-        public                              int      continueSending;
-        [MarshalAs(Constants.SizeT)] public uint     packetSize;
-        public                              ushort   headerFlags;
-
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = Constants.EnetProtocolMaximumPacketCommands)]
-        public ENetProtocol[] commands;
-
-        [MarshalAs(Constants.SizeT)] public uint commandCount;
-
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = Constants.EnetBufferMaximum)]
-        public ENetBuffer[] buffers;
-
-        [MarshalAs(Constants.SizeT)] public uint           bufferCount;
-        public                              IntPtr         checksum; /**< callback the user can set to enable packet checksums for this host */
-        public                              ENetCompressor compressor;
-
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2 * Constants.EnetProtocolMaximumMtu)]
-        public byte[] packetData;
-
-        public                              ENetAddress receivedAddress;
-        public                              IntPtr      receivedData;
-        [MarshalAs(Constants.SizeT)] public uint        receivedDataLength;
-        public                              uint        totalSentData; /**< total data sent, user should reset to 0 as needed to prevent overflow */
-        public                              uint        totalSentPackets; /**< total UDP packets sent, user should reset to 0 as needed to prevent overflow */
-        public                              uint        totalReceivedData; /**< total data received, user should reset to 0 as needed to prevent overflow */
-        public                              uint        totalReceivedPackets; /**< total UDP packets received, user should reset to 0 as needed to prevent overflow */
-        public                              IntPtr      intercept; /**< callback the user can set to intercept received raw UDP packets */
-        [MarshalAs(Constants.SizeT)] public uint        connectedPeers;
-        [MarshalAs(Constants.SizeT)] public uint        bandwidthLimitedPeers;
-        [MarshalAs(Constants.SizeT)] public uint        duplicatePeers; /**< optional number of allowed peers from duplicate IPs, defaults to ENET_PROTOCOL_MAXIMUM_PEER_ID */
-        [MarshalAs(Constants.SizeT)] public uint        maximumPacketSize; /**< the maximum allowable packet size that may be sent or received on a peer */
-        [MarshalAs(Constants.SizeT)] public uint        maximumWaitingData; /**< the maximum aggregate amount of buffer space a peer may use waiting for packets to be delivered */
     }
 
     public delegate IntPtr AllocCallback(IntPtr size);
