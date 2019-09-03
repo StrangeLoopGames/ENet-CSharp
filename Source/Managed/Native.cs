@@ -74,7 +74,16 @@ namespace ENet
         internal static extern IntPtr enet_host_connect(IntPtr host, ref ENetAddress address, IntPtr channelCount, uint data);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void enet_host_broadcast(IntPtr host, byte channelID, IntPtr packet);
+        internal static extern void enet_host_send_raw(IntPtr host, ref ENetAddress address, byte[] data, /*size_t*/ IntPtr dataLength);
+
+        [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int enet_host_send_raw_ex(IntPtr host, ref ENetAddress address, byte[] buffer, /*size_t*/ IntPtr offset, /*size_t*/ IntPtr length);
+
+        [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int enet_host_set_intercept(IntPtr host, ENetInterceptCallback callback);
+
+        [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int enet_host_broadcast(IntPtr host, byte channelID, IntPtr packet);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void enet_host_broadcast_exclude(IntPtr host, byte channelID, IntPtr packet, IntPtr excludedPeer);
@@ -108,6 +117,12 @@ namespace ENet
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
         internal static extern uint enet_host_get_bytes_received(IntPtr host);
+
+        [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern uint enet_host_get_mtu(IntPtr host);
+
+        [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern uint enet_host_get_received_data(IntPtr host, out IntPtr receivedData);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void enet_host_flush(IntPtr host);

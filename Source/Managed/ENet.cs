@@ -95,6 +95,8 @@ namespace ENet
         public NoMemoryCallback noMemory;
     }
 
+    public delegate int ENetInterceptCallback(IntPtr host, IntPtr netEvent);
+
     public delegate IntPtr AllocCallback(IntPtr size);
 
     public delegate void FreeCallback(IntPtr memory);
@@ -127,9 +129,7 @@ namespace ENet
 
     public struct Address
     {
-        private ENetAddress nativeAddress;
-
-        internal ENetAddress NativeData { get { return nativeAddress; } set { nativeAddress = value; } }
+        internal ENetAddress nativeAddress;
 
         internal Address(ENetAddress address) { nativeAddress = address; }
 
@@ -455,7 +455,7 @@ namespace ENet
 
             if (address != null)
             {
-                var nativeAddress = address.Value.NativeData;
+                var nativeAddress = address.Value.nativeAddress;
 
                 nativeHost = Native.enet_host_create(ref nativeAddress, (IntPtr)peerLimit, (IntPtr)channelLimit, incomingBandwidth, outgoingBandwidth, bufferSize);
             }
@@ -466,6 +466,11 @@ namespace ENet
 
             if (nativeHost == IntPtr.Zero)
                 throw new InvalidOperationException("Host creation call failed");
+        }
+
+        public int SendRaw(Address address, byte[] data, int offset, int length)
+        {
+            return Native.enet_host_send_raw_ex(this.nativeHost, ref address.nativeAddress, data, (IntPtr)offset, (IntPtr)length);
         }
 
         public void EnableCompression()
@@ -555,9 +560,7 @@ namespace ENet
             CheckCreated();
             CheckChannelLimit(channelLimit);
 
-            var nativeAddress = address.NativeData;
-            var peer          = new Peer(Native.enet_host_connect(nativeHost, ref nativeAddress, (IntPtr)channelLimit, data));
-
+            var peer          = new Peer(Native.enet_host_connect(nativeHost, ref address.nativeAddress, (IntPtr)channelLimit, data));
             if (peer.NativeData == IntPtr.Zero)
                 throw new InvalidOperationException("Host connect call failed");
 
@@ -607,6 +610,42 @@ namespace ENet
             CheckCreated();
 
             Native.enet_host_flush(nativeHost);
+        }
+
+        public uint MTU { get { return Native.enet_host_get_mtu(this.nativeHost); } }
+
+        private int Intercept(IntPtr host, IntPtr netEvent)
+        {
+            var consumed = false;
+            if (this.rawDataReceivedEvent != null)
+            {
+                IntPtr receivedData;
+                var receivedDataLength = Native.enet_host_get_received_data(host, out receivedData);
+                this.rawDataReceivedEvent.Invoke(receivedData, receivedDataLength, ref consumed);
+            }
+
+            return consumed ? 1 : 0;
+        }
+
+        public delegate void RawDataReceivedHandler(IntPtr data, uint length, ref bool consumed);
+
+        private event RawDataReceivedHandler rawDataReceivedEvent;
+
+        public event RawDataReceivedHandler RawDataReceived
+        {
+            add
+            {
+                if (this.rawDataReceivedEvent == null)
+                    Native.enet_host_set_intercept(this.nativeHost, this.Intercept);
+                this.rawDataReceivedEvent += value;
+            }
+            remove
+            {
+                if (this.rawDataReceivedEvent == null) return;
+                this.rawDataReceivedEvent -= value;
+                if (this.rawDataReceivedEvent == null)
+                    Native.enet_host_set_intercept(this.nativeHost, null);
+            }
         }
     }
 
