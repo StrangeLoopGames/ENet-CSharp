@@ -1,8 +1,8 @@
 image: Visual Studio 2017
 
 platform:
-  - x64
   - x86
+  - x64
 
 configuration:
   - Release
@@ -12,21 +12,18 @@ for:
       only:
         - platform: x64
     environment:
-      - ARCH: x64
+      ARCH: x64
   - matrix:
       only:
         - platform: x86
     environment:
-      - ARCH: Win32
+      ARCH: Win32
 
 before_build:
-  - cmake .\Source\Native -G "Visual Studio 15 2017" -A x64 -DENET_SHARED=1 -DENET_TEST=1
+  - cmake .\Source\Native -G "Visual Studio 15 2017" -A %ARCH% -DENET_SHARED=1
 
-build:
-  project: $(APPVEYOR_BUILD_FOLDER)\$(APPVEYOR_PROJECT_NAME).sln
-
-test_script:
-  - '%APPVEYOR_BUILD_FOLDER%\%CONFIGURATION%\enet_test.exe'
+build_script:
+  - cmake --build . --config Release
 
 artifacts:
   - path: 'Release\*.dll'
