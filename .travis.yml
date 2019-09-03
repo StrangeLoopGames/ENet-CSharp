@@ -4,14 +4,11 @@ os:
 language: c
 compiler: clang
 script:
-- cmake ./Source/Native/ -DCMAKE_BUILD_TYPE=Release -DENET_SHARED=1 -DENET_LZ4=1
+- cmake ./Source/Native/ -DENET_SHARED=1 -DENET_LZ4=1
 - cmake --build .
-matrix:
-  include:
-    - os: linux
-      env: DEPLOY_FILE=libenet.so
-    - os: osx
-      env: DEPLOY_FILE=enet.dylib
+before_deploy:
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then export DEPLOY_FILE=enet.dylib; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then export DEPLOY_FILE=libenet.so; fi
 deploy:
   provider: releases
   api_key:
