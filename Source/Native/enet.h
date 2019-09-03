@@ -739,14 +739,14 @@ extern "C" {
 	ENET_API int  enet_host_check_events(ENetHost*, ENetEvent*);
 	ENET_API int  enet_host_service(ENetHost*, ENetEvent*, enet_uint32);
 	ENET_API int  enet_host_send_raw(ENetHost *, const ENetAddress *, enet_uint8 *, size_t);
-	ENET_API int  enet_host_send_raw_ex(ENetHost *host, const ENetAddress* address, enet_uint8* data, size_t skipBytes, size_t bytesToSend);
+	ENET_API int  enet_host_send_raw_ex(ENetHost *host, const ENetAddress*, enet_uint8*, size_t, size_t);
 	ENET_API void enet_host_set_intercept(ENetHost *, const ENetInterceptCallback);
 	ENET_API void enet_host_flush(ENetHost*);
 	ENET_API void enet_host_broadcast(ENetHost*, enet_uint8, ENetPacket*);
 	ENET_API void enet_host_broadcast_exclude(ENetHost*, enet_uint8, ENetPacket*, ENetPeer*);
 	ENET_API void enet_host_broadcast_selective(ENetHost*, enet_uint8, ENetPacket*, ENetPeer**, size_t);
 	ENET_API void enet_host_channel_limit(ENetHost*, size_t);
-	ENET_API void enet_host_bandwidth_limit(ENetHost*, enet_uint32, enet_uint32);
+	ENET_API void enet_host_bandwidth_limit(ENetHost*, enet_uint32, enet_uint32);	
 
 	ENET_API int enet_address_set_host_ip(ENetAddress*, const char*);
 	ENET_API int enet_address_set_host(ENetAddress*, const char*);
@@ -782,6 +782,7 @@ extern "C" {
 	ENET_API enet_uint32 enet_host_get_bytes_received(const ENetHost*);
 	ENET_API enet_uint32 enet_host_get_received_data(ENetHost *, enet_uint8** data);
 	ENET_API enet_uint32 enet_host_get_mtu(ENetHost *);
+	ENET_API int         enet_host_get_socket_address(ENetHost*, ENetAddress*);
 
 	ENET_API enet_uint32 enet_peer_get_id(const ENetPeer*);
 	ENET_API int enet_peer_get_ip(const ENetPeer*, char*, size_t);
@@ -5126,6 +5127,15 @@ extern "C" {
 		enet_uint32 enet_host_get_mtu(ENetHost *host) {
 			return host->mtu;
 		}
+
+		/** Gets host's address. Assigns to provided address argument.
+		 * @param host host to get address from
+		 * @param address destination to save the host's address
+		 */
+		int enet_host_get_socket_address(ENetHost* host, ENetAddress* address) {
+			return enet_socket_get_address(host->socket, address);			
+		}
+
 
 		enet_uint32 enet_peer_get_id(const ENetPeer* peer) {
 			return peer->incomingPeerID;

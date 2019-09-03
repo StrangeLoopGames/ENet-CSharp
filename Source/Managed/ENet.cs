@@ -414,6 +414,18 @@ namespace ENet
             }
         }
 
+        public Address SocketAddress
+        {
+            get
+            {
+                this.CheckCreated();
+
+                var address = default(Address);
+                Native.enet_host_get_socket_address(this.nativeHost, ref address.nativeAddress);
+                return address;
+            }
+        }
+
         internal void CheckCreated()
         {
             if (nativeHost == IntPtr.Zero)

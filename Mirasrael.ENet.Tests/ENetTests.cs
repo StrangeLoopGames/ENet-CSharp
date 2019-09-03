@@ -63,5 +63,20 @@ namespace Mirasrael.ENet.Tests
             Assert.AreEqual(originalString, receivedString);
             targetHost.Dispose();
         }
+
+        [Test]
+        public void TestENetHostAddress()
+        {
+            using (var host = new Host())
+            {
+                var address = new Address { Port = 0 };
+                address.SetIP("127.0.0.1");
+                host.Create(address, 1);
+
+                Assert.AreNotEqual(0, host.SocketAddress.Port);
+                Assert.AreEqual("127.0.0.1", host.SocketAddress.GetIP());
+                host.Dispose();
+            }
+        }
     }
 }
