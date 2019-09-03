@@ -26,16 +26,16 @@ namespace ENet
         internal static extern uint enet_time_get();
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int enet_address_set_host_ip(ref ENetAddress address, string ip);
+        internal static extern int enet_address_set_host_ip(ref Address address, string ip);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int enet_address_set_host(ref ENetAddress address, string hostName);
+        internal static extern int enet_address_set_host(ref Address address, string hostName);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int enet_address_get_host_ip(ENetAddress address, StringBuilder ip, IntPtr ipLength);
+        internal static extern int enet_address_get_host_ip(Address address, StringBuilder ip, IntPtr ipLength);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int enet_address_get_host(ENetAddress address, StringBuilder hostName, IntPtr nameLength);
+        internal static extern int enet_address_get_host(Address address, StringBuilder hostName, IntPtr nameLength);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr enet_packet_create(byte[] data, IntPtr dataLength, PacketFlags flags);
@@ -65,19 +65,19 @@ namespace ENet
         internal static extern void enet_packet_dispose(IntPtr packet);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr enet_host_create(ref ENetAddress address, IntPtr peerLimit, IntPtr channelLimit, uint incomingBandwidth, uint outgoingBandwidth, int bufferSize);
+        internal static extern IntPtr enet_host_create(ref Address address, IntPtr peerLimit, IntPtr channelLimit, uint incomingBandwidth, uint outgoingBandwidth, int bufferSize);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr enet_host_create(IntPtr address, IntPtr peerLimit, IntPtr channelLimit, uint incomingBandwidth, uint outgoingBandwidth, int bufferSize);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern IntPtr enet_host_connect(IntPtr host, ref ENetAddress address, IntPtr channelCount, uint data);
+        internal static extern IntPtr enet_host_connect(IntPtr host, ref Address address, IntPtr channelCount, uint data);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern void enet_host_send_raw(IntPtr host, ref ENetAddress address, byte[] data, /*size_t*/ IntPtr dataLength);
+        internal static extern void enet_host_send_raw(IntPtr host, ref Address address, byte[] data, /*size_t*/ IntPtr dataLength);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int enet_host_send_raw_ex(IntPtr host, ref ENetAddress address, byte[] buffer, /*size_t*/ IntPtr offset, /*size_t*/ IntPtr length);
+        internal static extern int enet_host_send_raw_ex(IntPtr host, ref Address address, byte[] buffer, /*size_t*/ IntPtr offset, /*size_t*/ IntPtr length);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int enet_host_set_intercept(IntPtr host, ENetInterceptCallback callback);
@@ -128,7 +128,7 @@ namespace ENet
         internal static extern IntPtr enet_host_get_received_address_ptr(IntPtr host);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int enet_host_get_socket_address(IntPtr host, ref ENetAddress address);
+        internal static extern int enet_host_get_socket_address(IntPtr host, ref Address address);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void enet_host_flush(IntPtr host);

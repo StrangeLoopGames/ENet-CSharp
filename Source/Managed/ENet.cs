@@ -69,15 +69,6 @@ namespace ENet
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct ENetAddress
-    {
-        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
-        public byte[] ip;
-
-        public ushort port;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
     internal struct ENetEvent
     {
         public EventType type;
@@ -127,19 +118,21 @@ namespace ENet
         }
     }
 
-    public struct Address
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe ref struct Address
     {
-        internal ENetAddress nativeAddress;
+        private fixed byte ip[16];
+        private ushort port;
 
-        internal Address(ENetAddress address) { nativeAddress = address; }
+        public static Address Any => new Address();
 
-        public ushort Port { get { return nativeAddress.port; } set { nativeAddress.port = value; } }
+        public ushort Port { get => this.port; set => this.port = value; }
 
         public string GetIP()
         {
-            StringBuilder ip = new StringBuilder(1024);
+            var ip = new StringBuilder(1024);
 
-            if (Native.enet_address_get_host_ip(nativeAddress, ip, (IntPtr)ip.Capacity) != 0)
+            if (Native.enet_address_get_host_ip(this, ip, (IntPtr)ip.Capacity) != 0)
                 return String.Empty;
 
             return ip.ToString();
@@ -150,14 +143,14 @@ namespace ENet
             if (ip == null)
                 throw new ArgumentNullException("ip");
 
-            return Native.enet_address_set_host_ip(ref nativeAddress, ip) == 0;
+            return Native.enet_address_set_host_ip(ref this, ip) == 0;
         }
 
         public string GetHost()
         {
             StringBuilder hostName = new StringBuilder(1024);
 
-            if (Native.enet_address_get_host(nativeAddress, hostName, (IntPtr)hostName.Capacity) != 0)
+            if (Native.enet_address_get_host(this, hostName, (IntPtr)hostName.Capacity) != 0)
                 return String.Empty;
 
             return hostName.ToString();
@@ -168,7 +161,7 @@ namespace ENet
             if (hostName == null)
                 throw new ArgumentNullException("hostName");
 
-            return Native.enet_address_set_host(ref nativeAddress, hostName) == 0;
+            return Native.enet_address_set_host(ref this, hostName) == 0;
         }
     }
 
@@ -421,7 +414,7 @@ namespace ENet
                 this.CheckCreated();
 
                 var address = default(Address);
-                Native.enet_host_get_socket_address(this.nativeHost, ref address.nativeAddress);
+                Native.enet_host_get_socket_address(this.nativeHost, ref address);
                 return address;
             }
         }
@@ -438,24 +431,24 @@ namespace ENet
                 throw new ArgumentOutOfRangeException("channelLimit");
         }
 
-        public void Create() { Create(null, 1, 0); }
+        public void Create() { Create(Address.Any, 1, 0); }
 
-        public void Create(int bufferSize) { Create(null, 1, 0, 0, 0, bufferSize); }
+        public void Create(int bufferSize) { Create(Address.Any, 1, 0, 0, 0, bufferSize); }
 
-        public void Create(Address? address, int peerLimit) { Create(address, peerLimit, 0); }
+        public void Create(Address address, int peerLimit) { Create(address, peerLimit, 0); }
 
-        public void Create(Address? address, int peerLimit, int channelLimit) { Create(address, peerLimit, channelLimit, 0, 0, 0); }
+        public void Create(Address address, int peerLimit, int channelLimit) { Create(address, peerLimit, channelLimit, 0, 0, 0); }
 
-        public void Create(int peerLimit, int channelLimit) { Create(null, peerLimit, channelLimit, 0, 0, 0); }
+        public void Create(int peerLimit, int channelLimit) { Create(Address.Any, peerLimit, channelLimit, 0, 0, 0); }
 
-        public void Create(int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth) { Create(null, peerLimit, channelLimit, incomingBandwidth, outgoingBandwidth, 0); }
+        public void Create(int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth) { Create(Address.Any, peerLimit, channelLimit, incomingBandwidth, outgoingBandwidth, 0); }
 
-        public void Create(Address? address, int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth)
+        public void Create(Address address, int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth)
         {
             Create(address, peerLimit, channelLimit, incomingBandwidth, outgoingBandwidth, 0);
         }
 
-        public void Create(Address? address, int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth, int bufferSize)
+        public void Create(Address address, int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth, int bufferSize)
         {
             if (nativeHost != IntPtr.Zero)
                 throw new InvalidOperationException("Host already created");
@@ -465,16 +458,7 @@ namespace ENet
 
             CheckChannelLimit(channelLimit);
 
-            if (address != null)
-            {
-                var nativeAddress = address.Value.nativeAddress;
-
-                nativeHost = Native.enet_host_create(ref nativeAddress, (IntPtr)peerLimit, (IntPtr)channelLimit, incomingBandwidth, outgoingBandwidth, bufferSize);
-            }
-            else
-            {
-                nativeHost = Native.enet_host_create(IntPtr.Zero, (IntPtr)peerLimit, (IntPtr)channelLimit, incomingBandwidth, outgoingBandwidth, bufferSize);
-            }
+            nativeHost = Native.enet_host_create(ref address, (IntPtr)peerLimit, (IntPtr)channelLimit, incomingBandwidth, outgoingBandwidth, bufferSize);
 
             if (nativeHost == IntPtr.Zero)
                 throw new InvalidOperationException("Host creation call failed");
@@ -482,7 +466,7 @@ namespace ENet
 
         public int SendRaw(Address address, byte[] data, int offset, int length)
         {
-            return Native.enet_host_send_raw_ex(this.nativeHost, ref address.nativeAddress, data, (IntPtr)offset, (IntPtr)length);
+            return Native.enet_host_send_raw_ex(this.nativeHost, ref address, data, (IntPtr)offset, (IntPtr)length);
         }
 
         public void EnableCompression()
@@ -572,7 +556,7 @@ namespace ENet
             CheckCreated();
             CheckChannelLimit(channelLimit);
 
-            var peer          = new Peer(Native.enet_host_connect(nativeHost, ref address.nativeAddress, (IntPtr)channelLimit, data));
+            var peer          = new Peer(Native.enet_host_connect(nativeHost, ref address, (IntPtr)channelLimit, data));
             if (peer.NativeData == IntPtr.Zero)
                 throw new InvalidOperationException("Host connect call failed");
 
@@ -624,7 +608,7 @@ namespace ENet
             Native.enet_host_flush(nativeHost);
         }
 
-        public uint MTU { get { return Native.enet_host_get_mtu(this.nativeHost); } }
+        public uint MTU => Native.enet_host_get_mtu(this.nativeHost);
 
         private int Intercept(IntPtr host, IntPtr netEvent)
         {

@@ -56,12 +56,15 @@ namespace Mirasrael.ENet.Tests
 
             targetHost.RawDataReceived += (IntPtr receivedAddressPtr, IntPtr dataPtr, uint length, ref bool consumed) =>
             {
-                var data            = new byte[length];
-                var receivedAddress = Marshal.PtrToStructure<Address>(receivedAddressPtr);
-                Assert.AreEqual(receivedAddress.Port, address.Port);
-                Assert.AreEqual(receivedAddress.GetIP(), address.GetIP());
-                Marshal.Copy(dataPtr, data, 0, (int)length);
-                receivedString = Encoding.UTF8.GetString(data);
+                unsafe
+                {
+                    var data            = new byte[length];
+                    var receivedAddress = (Address*)receivedAddressPtr;
+                    Assert.AreEqual(receivedAddress->Port, 10000);
+                    Assert.AreEqual(receivedAddress->GetIP(), "127.0.0.1");
+                    Marshal.Copy(dataPtr, data, 0, (int)length);
+                    receivedString = Encoding.UTF8.GetString(data);
+                }
             };
 
             host.SendRaw(targetAddress, Encoding.UTF8.GetBytes($"++{originalString}++"), 2, Encoding.UTF8.GetBytes($"++{originalString}++").Length - 4);
