@@ -781,6 +781,7 @@ extern "C" {
 	ENET_API enet_uint32 enet_host_get_bytes_sent(const ENetHost*);
 	ENET_API enet_uint32 enet_host_get_bytes_received(const ENetHost*);
 	ENET_API enet_uint32 enet_host_get_received_data(ENetHost *, enet_uint8** data);
+	ENET_API ENetAddress * enet_host_get_received_address_ptr(ENetHost *host);
 	ENET_API enet_uint32 enet_host_get_mtu(ENetHost *);
 	ENET_API int         enet_host_get_socket_address(ENetHost*, ENetAddress*);
 
@@ -5122,6 +5123,10 @@ extern "C" {
 		enet_uint32 enet_host_get_received_data(ENetHost *host, /*out*/ enet_uint8** data) {
 			*data = host->receivedData;
 			return host->receivedDataLength;
+		}
+
+		ENetAddress * enet_host_get_received_address_ptr(ENetHost *host) {
+			return &host->receivedAddress;
 		}
 
 		enet_uint32 enet_host_get_mtu(ENetHost *host) {

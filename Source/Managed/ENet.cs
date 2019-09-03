@@ -632,14 +632,15 @@ namespace ENet
             if (this.rawDataReceivedEvent != null)
             {
                 IntPtr receivedData;
+                var receivedAddress = Native.enet_host_get_received_address_ptr(host);
                 var receivedDataLength = Native.enet_host_get_received_data(host, out receivedData);
-                this.rawDataReceivedEvent.Invoke(receivedData, receivedDataLength, ref consumed);
+                this.rawDataReceivedEvent.Invoke(receivedAddress, receivedData, receivedDataLength, ref consumed);
             }
 
             return consumed ? 1 : 0;
         }
 
-        public delegate void RawDataReceivedHandler(IntPtr data, uint length, ref bool consumed);
+        public delegate void RawDataReceivedHandler(IntPtr address, IntPtr data, uint length, ref bool consumed);
 
         private event RawDataReceivedHandler rawDataReceivedEvent;
 
@@ -647,6 +648,7 @@ namespace ENet
         {
             add
             {
+                this.CheckCreated();
                 if (this.rawDataReceivedEvent == null)
                     Native.enet_host_set_intercept(this.nativeHost, this.Intercept);
                 this.rawDataReceivedEvent += value;

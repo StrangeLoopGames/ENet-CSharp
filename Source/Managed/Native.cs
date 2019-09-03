@@ -125,6 +125,9 @@ namespace ENet
         internal static extern uint enet_host_get_received_data(IntPtr host, out IntPtr receivedData);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern IntPtr enet_host_get_received_address_ptr(IntPtr host);
+
+        [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int enet_host_get_socket_address(IntPtr host, ref ENetAddress address);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]

@@ -23,7 +23,7 @@ namespace Mirasrael.ENet.Tests
 
             var originalString = "Hello World";
             var receivedString = string.Empty;
-            targetHost.RawDataReceived += (IntPtr dataPtr, uint length, ref bool consumed) =>
+            targetHost.RawDataReceived += (IntPtr address, IntPtr dataPtr, uint length, ref bool consumed) =>
             {
                 var data = new byte[length];
                 Marshal.Copy(dataPtr, data, 0, (int)length);
@@ -48,16 +48,22 @@ namespace Mirasrael.ENet.Tests
 
             var originalString = "Hello World";
             var receivedString = string.Empty;
-            targetHost.RawDataReceived += (IntPtr dataPtr, uint length, ref bool consumed) =>
+
+            var host = new Host();
+            var address = new Address { Port = 10000 };
+            address.SetIP("127.0.0.1");
+            host.Create(address, 10, 2, 100, 200);
+
+            targetHost.RawDataReceived += (IntPtr receivedAddressPtr, IntPtr dataPtr, uint length, ref bool consumed) =>
             {
-                var data = new byte[length];
+                var data            = new byte[length];
+                var receivedAddress = Marshal.PtrToStructure<Address>(receivedAddressPtr);
+                Assert.AreEqual(receivedAddress.Port, address.Port);
+                Assert.AreEqual(receivedAddress.GetIP(), address.GetIP());
                 Marshal.Copy(dataPtr, data, 0, (int)length);
                 receivedString = Encoding.UTF8.GetString(data);
             };
 
-            var host = new Host();
-            var address = new Address { Port = 10000 };
-            host.Create(address, 10, 2, 100, 200);
             host.SendRaw(targetAddress, Encoding.UTF8.GetBytes($"++{originalString}++"), 2, Encoding.UTF8.GetBytes($"++{originalString}++").Length - 4);
             Assert.AreEqual(0, targetHost.Service(100, out _));
             Assert.AreEqual(originalString, receivedString);
