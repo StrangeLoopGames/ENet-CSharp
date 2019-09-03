@@ -20,7 +20,7 @@ for:
       ARCH: Win32
 
 before_build:
-  - cmake .\Source\Native -G "Visual Studio 15 2017" -A %ARCH% -DENET_SHARED=1
+  - cmake .\Source\Native -G "Visual Studio 15 2017" -A %ARCH% -DENET_SHARED=1 -DCMAKE_BUILD_TYPE=Release -DENET_LZ4=1
 
 build_script:
   - cmake --build . --config Release
