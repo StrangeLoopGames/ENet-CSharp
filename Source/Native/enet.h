@@ -1144,7 +1144,7 @@ extern "C" {
 		}
 
 		int enet_array_is_zeroed(const uint8_t* array, int length) {
-			size_t i;
+			int i;
 
 			for (i = 0; i < length; i++) {
 				if (array[i] != 0)

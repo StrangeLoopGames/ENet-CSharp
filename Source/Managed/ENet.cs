@@ -86,14 +86,19 @@ namespace ENet
         public NoMemoryCallback noMemory;
     }
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate int ENetInterceptCallback(IntPtr host, IntPtr netEvent);
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate IntPtr AllocCallback(IntPtr size);
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void FreeCallback(IntPtr memory);
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void NoMemoryCallback();
 
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     public delegate void PacketFreeCallback(Packet packet);
 
     internal static class ArrayPool
@@ -335,7 +340,7 @@ namespace ENet
     public class Host : IDisposable
     {
         private IntPtr nativeHost;
-        private ENetInterceptCallback interceptCallback;
+        private readonly ENetInterceptCallback interceptCallback;
 
         internal IntPtr NativeData { get { return nativeHost; } set { nativeHost = value; } }
 
