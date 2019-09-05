@@ -335,8 +335,11 @@ namespace ENet
     public class Host : IDisposable
     {
         private IntPtr nativeHost;
+        private ENetInterceptCallback interceptCallback;
 
         internal IntPtr NativeData { get { return nativeHost; } set { nativeHost = value; } }
+
+        public Host() { this.interceptCallback = this.Intercept; }
 
         public void Dispose()
         {
@@ -633,8 +636,8 @@ namespace ENet
             add
             {
                 this.CheckCreated();
-//                if (this.rawDataReceivedEvent == null)
-//                    Native.enet_host_set_intercept(this.nativeHost, this.Intercept);
+                if (this.rawDataReceivedEvent == null)
+                    Native.enet_host_set_intercept(this.nativeHost, this.interceptCallback);
                 this.rawDataReceivedEvent += value;
             }
             remove
