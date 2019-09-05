@@ -32,10 +32,10 @@ namespace ENet
         internal static extern int enet_address_set_host(ref Address address, string hostName);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int enet_address_get_host_ip(Address address, StringBuilder ip, IntPtr ipLength);
+        internal static extern int enet_address_get_host_ip(ref Address address, StringBuilder ip, IntPtr ipLength);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int enet_address_get_host(Address address, StringBuilder hostName, IntPtr nameLength);
+        internal static extern int enet_address_get_host(ref Address address, StringBuilder hostName, IntPtr nameLength);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
         internal static extern IntPtr enet_packet_create(byte[] data, IntPtr dataLength, PacketFlags flags);

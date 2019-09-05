@@ -132,7 +132,7 @@ namespace ENet
         {
             var ip = new StringBuilder(1024);
 
-            if (Native.enet_address_get_host_ip(this, ip, (IntPtr)ip.Capacity) != 0)
+            if (Native.enet_address_get_host_ip(ref this, ip, (IntPtr)ip.Capacity) != 0)
                 return String.Empty;
 
             return ip.ToString();
@@ -150,7 +150,7 @@ namespace ENet
         {
             StringBuilder hostName = new StringBuilder(1024);
 
-            if (Native.enet_address_get_host(this, hostName, (IntPtr)hostName.Capacity) != 0)
+            if (Native.enet_address_get_host(ref this, hostName, (IntPtr)hostName.Capacity) != 0)
                 return String.Empty;
 
             return hostName.ToString();
@@ -633,8 +633,8 @@ namespace ENet
             add
             {
                 this.CheckCreated();
-                if (this.rawDataReceivedEvent == null)
-                    Native.enet_host_set_intercept(this.nativeHost, this.Intercept);
+//                if (this.rawDataReceivedEvent == null)
+//                    Native.enet_host_set_intercept(this.nativeHost, this.Intercept);
                 this.rawDataReceivedEvent += value;
             }
             remove
@@ -886,7 +886,7 @@ namespace ENet
 
             int i;
 
-            for (i = 0; i < data.Length && data[i] != 0; i++) ;
+            for (i = 0; i < data.Length && data[i] != 0; i++) { }
 
             return i;
         }
