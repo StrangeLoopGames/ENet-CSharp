@@ -31,7 +31,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 3
-#define ENET_VERSION_PATCH 0
+#define ENET_VERSION_PATCH 1
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -746,12 +746,12 @@ extern "C" {
 	ENET_API void enet_host_broadcast_exclude(ENetHost*, enet_uint8, ENetPacket*, ENetPeer*);
 	ENET_API void enet_host_broadcast_selective(ENetHost*, enet_uint8, ENetPacket*, ENetPeer**, size_t);
 	ENET_API void enet_host_channel_limit(ENetHost*, size_t);
-	ENET_API void enet_host_bandwidth_limit(ENetHost*, enet_uint32, enet_uint32);	
+	ENET_API void enet_host_bandwidth_limit(ENetHost*, enet_uint32, enet_uint32);
 
-	ENET_API int enet_address_set_host_ip(ENetAddress*, const char*);
-	ENET_API int enet_address_set_host(ENetAddress*, const char*);
-	ENET_API int enet_address_get_host_ip(const ENetAddress*, char*, size_t);
-	ENET_API int enet_address_get_host(const ENetAddress*, char*, size_t);
+	ENET_API int enet_address_set_ip(ENetAddress*, const char*);
+	ENET_API int enet_address_set_hostname(ENetAddress*, const char*);
+	ENET_API int enet_address_get_ip(const ENetAddress*, char*, size_t);
+	ENET_API int enet_address_get_hostname(const ENetAddress*, char*, size_t);
 
 	ENET_API ENetSocket enet_socket_create(ENetSocketType);
 	ENET_API int enet_socket_bind(ENetSocket, const ENetAddress*);
@@ -4378,7 +4378,7 @@ extern "C" {
 =======================================================================
 */
 
-		int enet_address_set_host_ip(ENetAddress* address, const char* ip) {
+		int enet_address_set_ip(ENetAddress* address, const char* ip) {
 			int type = AF_INET6;
 			void* destination = &address->ipv6;
 
@@ -4394,7 +4394,7 @@ extern "C" {
 			return 0;
 		}
 
-		int enet_address_set_host(ENetAddress* address, const char* name) {
+		int enet_address_set_hostname(ENetAddress* address, const char* name) {
 			struct addrinfo hints, *resultList = NULL, *result = NULL;
 
 			memset(&hints, 0, sizeof(hints));
@@ -4432,10 +4432,10 @@ extern "C" {
 			if (resultList != NULL)
 				freeaddrinfo(resultList);
 
-			return enet_address_set_host_ip(address, name);
+			return enet_address_set_ip(address, name);
 		}
 
-		int enet_address_get_host_ip(const ENetAddress* address, char* ip, size_t ipLength) {
+		int enet_address_get_ip(const ENetAddress* address, char* ip, size_t ipLength) {
 		    if (address->ipv4.ffff == 0xFFFF && enet_array_is_zeroed(address->ipv4.zeros, sizeof(address->ipv4.zeros)) == 0)
 		    {
 		        if (inet_ntop(AF_INET, &address->ipv4.ip, ip, ipLength) == NULL)
@@ -4447,7 +4447,7 @@ extern "C" {
 			return 0;
 		}
 
-		int enet_address_get_host(const ENetAddress* address, char* name, size_t nameLength) {
+		int enet_address_get_hostname(const ENetAddress* address, char* name, size_t nameLength) {
 			struct sockaddr_in6 sin;
 			int err;
 
@@ -4469,7 +4469,7 @@ extern "C" {
 			if (err != EAI_NONAME)
 				return -1;
 
-			return enet_address_get_host_ip(address, name, nameLength);
+			return enet_address_get_ip(address, name, nameLength);
 		}
 
 /*
@@ -5140,7 +5140,7 @@ extern "C" {
 		 * @param address destination to save the host's address
 		 */
 		int enet_host_get_socket_address(ENetHost* host, ENetAddress* address) {
-			return enet_socket_get_address(host->socket, address);			
+			return enet_socket_get_address(host->socket, address);
 		}
 
 
@@ -5149,7 +5149,7 @@ extern "C" {
 		}
 
 		int enet_peer_get_ip(const ENetPeer* peer, char* ip, size_t ipLength) {
-			return enet_address_get_host_ip(&peer->address, ip, ipLength);
+			return enet_address_get_ip(&peer->address, ip, ipLength);
 		}
 
 		enet_uint16 enet_peer_get_port(const ENetPeer* peer) {

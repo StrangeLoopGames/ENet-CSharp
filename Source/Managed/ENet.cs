@@ -135,9 +135,9 @@ namespace ENet
 
         public string GetIP()
         {
-            var ip = new StringBuilder(1024);
+            var ip = new StringBuilder(1025);
 
-            if (Native.enet_address_get_host_ip(ref this, ip, (IntPtr)ip.Capacity) != 0)
+            if (Native.enet_address_get_ip(ref this, ip, (IntPtr)ip.Capacity) != 0)
                 return String.Empty;
 
             return ip.ToString();
@@ -148,14 +148,14 @@ namespace ENet
             if (ip == null)
                 throw new ArgumentNullException("ip");
 
-            return Native.enet_address_set_host_ip(ref this, ip) == 0;
+            return Native.enet_address_set_ip(ref this, ip) == 0;
         }
 
         public string GetHost()
         {
-            StringBuilder hostName = new StringBuilder(1024);
+            StringBuilder hostName = new StringBuilder(1025);
 
-            if (Native.enet_address_get_host(ref this, hostName, (IntPtr)hostName.Capacity) != 0)
+            if (Native.enet_address_get_hostname(ref this, hostName, (IntPtr)hostName.Capacity) != 0)
                 return String.Empty;
 
             return hostName.ToString();
@@ -166,7 +166,7 @@ namespace ENet
             if (hostName == null)
                 throw new ArgumentNullException("hostName");
 
-            return Native.enet_address_set_host(ref this, hostName) == 0;
+            return Native.enet_address_set_hostname(ref this, hostName) == 0;
         }
     }
 
