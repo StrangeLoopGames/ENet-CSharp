@@ -4436,11 +4436,13 @@ extern "C" {
 		}
 
 		int enet_address_get_host_ip(const ENetAddress* address, char* ip, size_t ipLength) {
-			if (inet_ntop(AF_INET6, &address->ipv6, ip, ipLength) == NULL)
+		    if (address->ipv4.ffff == 0xFFFF && enet_array_is_zeroed(address->ipv4.zeros, sizeof(address->ipv4.zeros)) == 0)
+		    {
+		        if (inet_ntop(AF_INET, &address->ipv4.ip, ip, ipLength) == NULL)
+		            return -1;
+		    }
+		    else if (inet_ntop(AF_INET6, &address->ipv6, ip, ipLength) == NULL)
 				return -1;
-
-			if (enet_array_is_zeroed(address->ipv4.zeros, sizeof(address->ipv4.zeros)) == 0 && address->ipv4.ffff == 0xFFFF)
-				enet_string_copy(ip, ip + 7, ipLength);
 
 			return 0;
 		}

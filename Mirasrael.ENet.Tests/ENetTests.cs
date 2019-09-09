@@ -150,5 +150,26 @@ namespace Mirasrael.ENet.Tests
                 Library.Deinitialize();
             }
         }
+
+        [Test]
+        public void TestENetAddress()
+        {
+            Assert.AreEqual(default(Address).GetIP(), "::");
+
+            void AssertIP(string ip)
+            {
+                var address = new Address();
+                address.SetIP(ip);
+                Assert.AreEqual(ip, address.GetIP());
+                Assert.IsTrue(IPAddress.TryParse(ip, out _));
+            }
+
+            AssertIP("127.0.0.1");
+            AssertIP("192.168.0.1");
+            AssertIP("255.255.255.255");
+            AssertIP("ff02::1");
+            AssertIP("ff02::1:ff23:a050");
+            AssertIP("0.0.0.0");
+        }
     }
 }
