@@ -28,3 +28,13 @@ build_script:
 artifacts:
   - path: 'Release\*.dll'
     name: Releases
+
+deploy:
+  provider: GitHub
+  auth_token:
+    secure: "LsT5P0KETM65BKOmRDmRX8Uqufkv1iu1G4aa1+rkeg50f9JYW7KnBscZpwmPqqte"
+  artifact: /.*\.dll/
+  draft: false
+  prerelease: false
+  on:
+    appveyor_repo_tag: true

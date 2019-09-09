@@ -12,8 +12,7 @@ deploy:
   provider: releases
   api_key:
     secure: WZLYKewIk6hxHREIb0lW4ZzdpnUdIcQuDvgPLEOh7NvoBvi5vEh/oREj+d7nIxwdZcuPu0kQfNvX4ZmkLrVwBNDCRqHXQlsjTb7sxkHGvf7pp7fqfLIanYRus2AwpYn6eLlLtBmVcHyiwu4+kDFfV2FUbjWdth+19kMLoh6o4PNBUbQG9go34akZMWaAYVoNa2GZjPZ3Bk5XD/bkibF///JZXmXX8m+7L9r7eQB6+q2RCah3J1eaIFDwS7pEiOGO4hnXeVxHmuo1BhVHQDfRtbZKcjKusMKshb1wl+7STUWrqj1toJs+/Ml+G6DdYKnhR8LdkMU9XfhAQgtczAAwsh+GFeAxGTPoaO+NAxid5A4F40PAUm8myJv7ULmDZhSpDkNfmvFcSHLq8cD2hx5n3TyHGKqasHmdUiNnWdHqEahE6P0SMpGP4hLEIb95Ad5WR+eRa7lGnzrsyedimgZtOO/zQVDsgRu9lmz0BTAf3Y3ONLTw1FyRxHVCxIO89Gu+6dBoVcyGMXDip19kYqp7SflY4f78wwylbdL+7VPCf3J/qiStiHYLRpaGGiCus/IbhMtkOFg5dvQHt/aU5g+cwIYAkgeYLV67aJmHC6/srBMDtzUFB4VWiaGvJG2Be/sEvxsnsSXW204Bee0khIWlcVE2/dvKhK0HNsyCMTXkCwI=
-  draft: true
   skip_cleanup: true
   file: $FILE_TO_UPLOAD
   on:
-    repo: mirasrael/ENet-CSharp
+    tags: true
