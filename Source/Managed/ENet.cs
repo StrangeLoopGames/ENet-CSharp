@@ -33,6 +33,8 @@ using System.Text;
 
 namespace ENet
 {
+    using System.Collections.Generic;
+
     [Flags]
     public enum PacketFlags
     {
@@ -339,12 +341,37 @@ namespace ENet
 
     public class Host : IDisposable
     {
-        private IntPtr nativeHost;
+        private static readonly Dictionary<IntPtr, Host> NativePtrToHost = new Dictionary<IntPtr, Host>();
+        private static ENetInterceptCallback overridenInterceptCallback;
+
         private readonly ENetInterceptCallback interceptCallback;
 
-        internal IntPtr NativeData { get { return nativeHost; } set { nativeHost = value; } }
+        private IntPtr nativeHost;
+        private event RawDataReceivedHandler rawDataReceivedEvent;
+
+        public delegate void RawDataReceivedHandler(IntPtr address, IntPtr data, uint length, ref bool consumed);
 
         public Host() { this.interceptCallback = this.Intercept; }
+
+        public event RawDataReceivedHandler RawDataReceived
+        {
+            add
+            {
+                this.CheckCreated();
+                if (this.rawDataReceivedEvent == null)
+                    Native.enet_host_set_intercept(this.nativeHost, overridenInterceptCallback ?? this.interceptCallback);
+                this.rawDataReceivedEvent += value;
+            }
+            remove
+            {
+                if (this.rawDataReceivedEvent == null) return;
+                this.rawDataReceivedEvent -= value;
+                if (this.rawDataReceivedEvent == null)
+                    Native.enet_host_set_intercept(this.nativeHost, null);
+            }
+        }
+
+        internal IntPtr NativeData { get => nativeHost; set => nativeHost = value; }
 
         public void Dispose()
         {
@@ -356,6 +383,7 @@ namespace ENet
         {
             if (nativeHost != IntPtr.Zero)
             {
+                NativePtrToHost.Remove(nativeHost);
                 Native.enet_host_destroy(nativeHost);
                 nativeHost = IntPtr.Zero;
             }
@@ -470,6 +498,7 @@ namespace ENet
 
             if (nativeHost == IntPtr.Zero)
                 throw new InvalidOperationException("Host creation call failed");
+            NativePtrToHost[nativeHost] = this;
         }
 
         public int SendRaw(Address address, byte[] data, int offset, int length)
@@ -618,40 +647,36 @@ namespace ENet
 
         public uint MTU => Native.enet_host_get_mtu(this.nativeHost);
 
-        private int Intercept(IntPtr host, IntPtr netEvent)
+        public static int HandleIntercept(IntPtr nativePtr, IntPtr netEvent)
+        {
+            if (!NativePtrToHost.TryGetValue(nativePtr, out var host))
+                return 0;
+
+            return host.Intercept(nativePtr, netEvent);
+        }
+
+        private int Intercept(IntPtr nativePtr, IntPtr netEvent)
         {
             var consumed = false;
             if (this.rawDataReceivedEvent != null)
             {
-                IntPtr receivedData;
-                var receivedAddress = Native.enet_host_get_received_address_ptr(host);
-                var receivedDataLength = Native.enet_host_get_received_data(host, out receivedData);
+                var receivedAddress = Native.enet_host_get_received_address_ptr(this.nativeHost);
+                var receivedDataLength = Native.enet_host_get_received_data(this.nativeHost, out var receivedData);
                 this.rawDataReceivedEvent.Invoke(receivedAddress, receivedData, receivedDataLength, ref consumed);
             }
 
             return consumed ? 1 : 0;
         }
 
-        public delegate void RawDataReceivedHandler(IntPtr address, IntPtr data, uint length, ref bool consumed);
-
-        private event RawDataReceivedHandler rawDataReceivedEvent;
-
-        public event RawDataReceivedHandler RawDataReceived
+        /// <summary>
+        /// In some scenarios you may need override default Intercept callback (i.e. in Unity you need to set special annotation in IL2CPP for callback from native code).
+        /// You then can call <see cref="HandleIntercept"/> to use override callback as wrapper.
+        /// You must call this method before first Host created.
+        /// </summary>
+        /// <param name="interceptCallback"></param>
+        public static void OverrideInterceptCallback(ENetInterceptCallback interceptCallback)
         {
-            add
-            {
-                this.CheckCreated();
-                if (this.rawDataReceivedEvent == null)
-                    Native.enet_host_set_intercept(this.nativeHost, this.interceptCallback);
-                this.rawDataReceivedEvent += value;
-            }
-            remove
-            {
-                if (this.rawDataReceivedEvent == null) return;
-                this.rawDataReceivedEvent -= value;
-                if (this.rawDataReceivedEvent == null)
-                    Native.enet_host_set_intercept(this.nativeHost, null);
-            }
+            overridenInterceptCallback = interceptCallback;
         }
     }
 
