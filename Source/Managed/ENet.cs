@@ -939,7 +939,7 @@ namespace ENet
         public const uint timeoutMaximum       = 30000;
         public const uint majorVersion         = 2;
         public const uint minorVersion         = 3;
-        public const uint patchVersion         = 2;
+        public const uint patchVersion         = 3;
         public const uint version              = (majorVersion << 16) | (minorVersion << 8) | (patchVersion);
 
         public static bool Initialize() { return Native.enet_initialize() == 0; }
