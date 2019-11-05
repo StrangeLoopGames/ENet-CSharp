@@ -16,6 +16,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Source\Managed\ENet-CSharp.csproj" />
+      <ProjectReference Include="..\Source\Managed\Mirasrael.ENet.csproj" />
     </ItemGroup>
 </Project>

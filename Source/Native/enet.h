@@ -28,6 +28,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <time.h>
+#ifdef ENET_DEBUG
+#include <stdio.h>
+#endif
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 3
@@ -2873,14 +2876,14 @@ extern "C" {
 							printf(
 								"peer %u: %f%%+-%f%% packet loss, %u+-%u ms round trip time, %f%% throttle, %u/%u outgoing, %u/%u incoming\n", currentPeer->incomingPeerID,
 								currentPeer->packetLoss / (float)ENET_PEER_PACKET_LOSS_SCALE,
-								currentPeer->packetLossVariance / (float)ENET_PEER_PACKET_LOSS_SCALE, currentPeer->roundTripTime, currentPeer->roundTripTimeVariance,
+								currentPeer->packetLossVariance / (float)ENET_PEER_PACKET_LOSS_SCALE, (unsigned int)currentPeer->roundTripTime, (unsigned int)currentPeer->roundTripTimeVariance,
 								currentPeer->packetThrottle / (float)ENET_PEER_PACKET_THROTTLE_SCALE,
 
-								enet_list_size(&currentPeer->outgoingReliableCommands),
-								enet_list_size(&currentPeer->outgoingUnreliableCommands),
+								(unsigned int)enet_list_size(&currentPeer->outgoingReliableCommands),
+								(unsigned int)enet_list_size(&currentPeer->outgoingUnreliableCommands),
 
-								currentPeer->channels != NULL ? enet_list_size(&currentPeer->channels->incomingReliableCommands) : 0,
-								currentPeer->channels != NULL ? enet_list_size(&currentPeer->channels->incomingUnreliableCommands) : 0
+								currentPeer->channels != NULL ? (unsigned int)enet_list_size(&currentPeer->channels->incomingReliableCommands) : 0,
+								currentPeer->channels != NULL ? (unsigned int)enet_list_size(&currentPeer->channels->incomingUnreliableCommands) : 0
 							);
 						#endif
 
@@ -2942,7 +2945,7 @@ extern "C" {
 								shouldCompress = compressedSize;
 
 								#ifdef ENET_DEBUG
-									printf("peer %u: compressed %u->%u (%u%%)\n", currentPeer->incomingPeerID, originalSize, compressedSize, (compressedSize * 100) / originalSize);
+									printf("peer %u: compressed %u->%u (%u%%)\n", currentPeer->incomingPeerID, (unsigned int)originalSize, (unsigned int)compressedSize, (unsigned int)((compressedSize * 100) / originalSize));
 								#endif
 							}
 						}
