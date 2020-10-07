@@ -22,24 +22,26 @@ for:
           platform: x64
     environment:
       ARCH: x64
-      ARTIFACT_PATH: 'Release\*.dll'
+      ARTIFACT_PATH: 'Release\enet.dll'
   - matrix:
       only:
         - image: Visual Studio 2019
           platform: x86
     environment:
       ARCH: Win32
-      ARTIFACT_PATH: 'Release\*.dll'
+      ARTIFACT_PATH: 'Release\enet.dll'
   - matrix:
       only:
         - image: macOS
     environment:
-      ARTIFACT_PATH: '*.dylib'
+      ARTIFACT_PATH: 'enet.dylib'
+    after_build:
+      - mv libenet.dylib enet.dylib
   - matrix:
       only:
         - image: Ubuntu
     environment:
-      ARTIFACT_PATH: '*.so'
+      ARTIFACT_PATH: 'libenet.so'
 
 before_build:
   - cmd: cmake .\Source\Native -G "Visual Studio 16 2019" -A %ARCH% -DENET_SHARED=1 -DENET_LZ4=1
@@ -47,6 +49,14 @@ before_build:
 
 build_script:
   - cmake --build . --config Release
+
+before_test:
+  - dotnet build Mirasrael.ENet.Tests/Mirasrael.ENet.Tests.csproj -c Release -f netcoreapp2.0
+  - cmd: copy %ARTIFACT_PATH% Mirasrael.ENet.Tests\bin\%PLATFORM%\Release\netcoreapp2.0\
+  - sh: cp $ARTIFACT_PATH Mirasrael.ENet.Tests/bin/$PLATFORM/Release/netcoreapp2.0/
+
+test_script:
+  - dotnet test Mirasrael.ENet.Tests/Mirasrael.ENet.Tests.csproj -c Release --framework netcoreapp2.0
 
 artifacts:
   - path: '$(ARTIFACT_PATH)'
