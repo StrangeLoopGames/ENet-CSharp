@@ -4702,13 +4702,15 @@ extern "C" {
 			int enet_socket_send(ENetSocket socket, const ENetAddress* address, const ENetBuffer* buffers, size_t bufferCount) {
 				struct msghdr msgHdr;
 				struct sockaddr_in6 sin;
+				size_t sinSize;
 				int sentLength;
 
 				memset(&msgHdr, 0, sizeof(struct msghdr));
 
-				if (address != NULL) {					
+				if (address != NULL) {
+					enet_address_get_socket_address(address, &sin, &sinSize);
 					msgHdr.msg_name = &sin;
-					enet_address_get_socket_address(address, &sin, &msgHdr.msg_namelen);					
+					msgHdr.msg_namelen = sinSize;
 				}
 
 				msgHdr.msg_iov = (struct iovec*)buffers;
