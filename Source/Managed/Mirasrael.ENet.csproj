@@ -6,7 +6,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>net472;netstandard2.0;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
     <RootNamespace>ENet</RootNamespace>
   </PropertyGroup>
 
@@ -22,6 +22,12 @@
     <LangVersion>7.2</LangVersion>
     <OutputPath>..\..\lib\</OutputPath>
   </PropertyGroup>
+
+  <ItemGroup Condition="'$(Configuration)'=='Debug'">
+    <None Visible="false" Include="..\..\runtimes\linux-x64\native\libenet.so" Link="libenet.so" CopyToOutputDirectory="PreserveNewest"/>
+    <None Visible="false" Include="..\..\runtimes\osx-x64\native\enet.dylib" Link="enet.dylib" CopyToOutputDirectory="PreserveNewest"/>
+    <None Visible="false" Include="..\..\runtimes\win-x64\native\enet.dll" Link="enet.dll" CopyToOutputDirectory="PreserveNewest"/>
+  </ItemGroup>
 
   <Target Name="CopyLicenseFile" BeforeTargets="BeforeBuild">
     <Copy SourceFiles="..\..\LICENSE" DestinationFiles="..\..\license.txt" />
