@@ -7,6 +7,8 @@ platform:
   - x86
   - x64
 configuration: Release
+environment:
+  TARGET_FRAMEFORK: netcoreapp3.1
 
 matrix:
   exclude:
@@ -51,12 +53,14 @@ build_script:
   - cmake --build . --config Release
 
 before_test:
-  - dotnet build Mirasrael.ENet.Tests/Mirasrael.ENet.Tests.csproj -c Release -f netcoreapp2.0
-  - cmd: copy %ARTIFACT_PATH% Mirasrael.ENet.Tests\bin\%PLATFORM%\Release\netcoreapp2.0\
-  - sh: cp $ARTIFACT_PATH Mirasrael.ENet.Tests/bin/$PLATFORM/Release/netcoreapp2.0/
+  - cmd: dotnet build Mirasrael.ENet.Tests/Mirasrael.ENet.Tests.csproj -c Release -f %TARGET_FRAMEFORK%
+  - sh: dotnet build Mirasrael.ENet.Tests/Mirasrael.ENet.Tests.csproj -c Release -f $TARGET_FRAMEFORK
+  - cmd: copy %ARTIFACT_PATH% Mirasrael.ENet.Tests\bin\%PLATFORM%\Release\%TARGET_FRAMEFORK%\
+  - sh: cp $ARTIFACT_PATH Mirasrael.ENet.Tests/bin/$PLATFORM/Release/$TARGET_FRAMEFORK/
 
 test_script:
-  - dotnet test Mirasrael.ENet.Tests/Mirasrael.ENet.Tests.csproj -c Release --framework netcoreapp2.0
+  - cmd: dotnet test Mirasrael.ENet.Tests/Mirasrael.ENet.Tests.csproj -c Release --framework %TARGET_FRAMEFORK%
+  - sh: dotnet test Mirasrael.ENet.Tests/Mirasrael.ENet.Tests.csproj -c Release --framework $TARGET_FRAMEFORK
 
 artifacts:
   - path: '$(ARTIFACT_PATH)'
