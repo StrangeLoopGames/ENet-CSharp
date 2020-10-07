@@ -1,39 +1,62 @@
-image: Visual Studio 2017
+image:
+  - Visual Studio 2019
+  - Ubuntu
+  - macOS
 
 platform:
   - x86
   - x64
+configuration: Release
 
-configuration:
-  - Release
+matrix:
+  exclude:
+    - image: Ubuntu
+      platform: x86
+    - image: macOS
+      platform: x86
 
 for:
   - matrix:
       only:
-        - platform: x64
+        - image: Visual Studio 2019
+          platform: x64
     environment:
       ARCH: x64
+      ARTIFACT_PATH: 'Release\*.dll'
   - matrix:
       only:
-        - platform: x86
+        - image: Visual Studio 2019
+          platform: x86
     environment:
       ARCH: Win32
+      ARTIFACT_PATH: 'Release\*.dll'
+  - matrix:
+      only:
+        - image: macOS
+    environment:
+      ARTIFACT_PATH: '*.dylib'
+  - matrix:
+      only:
+        - image: Ubuntu
+    environment:
+      ARTIFACT_PATH: '*.so'
 
 before_build:
-  - cmake .\Source\Native -G "Visual Studio 15 2017" -A %ARCH% -DENET_SHARED=1 -DCMAKE_BUILD_TYPE=Release -DENET_LZ4=1
+  - cmd: cmake .\Source\Native -G "Visual Studio 16 2019" -A %ARCH% -DENET_SHARED=1 -DENET_LZ4=1
+  - sh: cmake ./Source/Native -DENET_SHARED=1 -DCMAKE_BUILD_TYPE=Release -DENET_LZ4=1
 
 build_script:
   - cmake --build . --config Release
 
 artifacts:
-  - path: 'Release\*.dll'
+  - path: '$(ARTIFACT_PATH)'
     name: Releases
 
 deploy:
   provider: GitHub
   auth_token:
     secure: "LsT5P0KETM65BKOmRDmRX8Uqufkv1iu1G4aa1+rkeg50f9JYW7KnBscZpwmPqqte"
-  artifact: /.*\.dll/
+  artifact: /.*\.(dll|so|dylib)/
   draft: false
   prerelease: false
   on:
