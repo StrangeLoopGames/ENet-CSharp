@@ -99,7 +99,7 @@ namespace Mirasrael.ENet.Tests
                 using(var client = new Host())
                 using (var server = new Host())
                 {
-                    client.Create();
+                    client.Create(Address.AnyV4, 1);
                     client.RawDataReceived += (IntPtr ptr, IntPtr data, uint length, ref bool consumed) => { };
 
                     var address = new Address();

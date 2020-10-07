@@ -131,7 +131,19 @@ namespace ENet
         private fixed byte ip[16];
         private ushort port;
 
+        /// <summary> Any IP address for IPv6. </summary>
         public static Address Any => new Address();
+
+        /// <summary> Any IP address for IPv4. </summary>
+        public static Address AnyV4
+        {
+            get
+            {
+                var address = new Address();
+                *(ushort*)(address.ip + 10) = 0xffff;
+                return address;
+            }
+        }
 
         public ushort Port { get => this.port; set => this.port = value; }
 
