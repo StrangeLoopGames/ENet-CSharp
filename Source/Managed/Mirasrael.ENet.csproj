@@ -8,18 +8,17 @@
     <OutputType>Library</OutputType>
     <TargetFrameworks>net472;netstandard2.0</TargetFrameworks>
     <RootNamespace>ENet</RootNamespace>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Optimize>false</Optimize>
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <Optimize>true</Optimize>
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
-    <LangVersion>7.2</LangVersion>
     <OutputPath>..\..\lib\</OutputPath>
   </PropertyGroup>
 

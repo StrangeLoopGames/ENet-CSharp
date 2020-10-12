@@ -135,15 +135,7 @@ namespace ENet
         public static Address Any => new Address();
 
         /// <summary> Any IP address for IPv4. </summary>
-        public static Address AnyV4
-        {
-            get
-            {
-                var address = new Address();
-                *(ushort*)(address.ip + 10) = 0xffff;
-                return address;
-            }
-        }
+        public static Address AnyV4 => new Address { ip = { [10] = 0xff, [11] = 0xff } };
 
         public ushort Port { get => this.port; set => this.port = value; }
 
