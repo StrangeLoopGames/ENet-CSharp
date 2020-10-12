@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ENet-CSharp", "Source\Managed\ENet-CSharp.csproj", "{7739143D-445C-441F-B704-C5EE87F25FE1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mirasrael.ENet", "Source\Managed\Mirasrael.ENet.csproj", "{7739143D-445C-441F-B704-C5EE87F25FE1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mirasrael.ENet.Tests", "Mirasrael.ENet.Tests\Mirasrael.ENet.Tests.csproj", "{DB300BBB-6609-471D-A582-93CDCAF088BF}"
 EndProject
