@@ -135,7 +135,17 @@ namespace ENet
         public static Address Any => new Address();
 
         /// <summary> Any IP address for IPv4. </summary>
-        public static Address AnyV4 => new Address { ip = { [10] = 0xff, [11] = 0xff } };
+        public static Address AnyV4
+        {
+            get
+            {
+                // ReSharper disable once UseObjectOrCollectionInitializer (can't be used with fixed array)
+                var address = new Address();
+                address.ip[10] = 0xff;
+                address.ip[11] = 0xff;
+                return address;
+            }
+        }
 
         public ushort Port { get => this.port; set => this.port = value; }
 
