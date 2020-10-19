@@ -25,7 +25,6 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -95,7 +94,7 @@ namespace ENet
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 	public delegate void PacketFreeCallback(Packet packet);
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-	public delegate int InterceptCallback(ref Event @event, IntPtr address, IntPtr receivedData, int receivedDataLength);
+	public delegate int InterceptCallback(ref Event @event, ref Address address, IntPtr receivedData, int receivedDataLength);
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 	public delegate ulong ChecksumCallback(IntPtr buffers, int bufferCount);
 
@@ -397,34 +396,9 @@ namespace ENet
 	}
 
 	public class Host : IDisposable {
-		private static          InterceptCallback    overridenInterceptCallback;
-
-		private readonly InterceptCallback interceptCallback;
-
 		private IntPtr                       nativeHost;
-		private event RawDataReceivedHandler rawDataReceivedEvent;
 
 		public delegate void RawDataReceivedHandler(IntPtr address, IntPtr data, int length, ref bool consumed);
-
-		public Host() { this.interceptCallback = this.Intercept; }
-
-		public event RawDataReceivedHandler RawDataReceived
-		{
-			add
-			{
-				this.IsCreated();
-				if (this.rawDataReceivedEvent == null)
-					this.SetInterceptCallback(overridenInterceptCallback ?? this.interceptCallback);
-				this.rawDataReceivedEvent += value;
-			}
-			remove
-			{
-				if (this.rawDataReceivedEvent == null) return;
-				this.rawDataReceivedEvent -= value;
-				if (this.rawDataReceivedEvent == null)
-					this.SetInterceptCallback(IntPtr.Zero);
-			}
-		}
 
 		internal IntPtr NativeData {
 			get {
@@ -724,29 +698,6 @@ namespace ENet
 		}
 
 		public uint MTU => Native.enet_host_get_mtu(this.nativeHost);
-
-		public static int HandleIntercept(ref Event @event, IntPtr receivedAddress, IntPtr receivedData, int receivedDataLength)
-		{
-			throw new NotSupportedException();
-		}
-
-		private int Intercept(ref Event @event, IntPtr receivedAddress, IntPtr receivedData, int receivedDataLength)
-		{
-			var consumed = false;
-			this.rawDataReceivedEvent?.Invoke(receivedAddress, receivedData, receivedDataLength, ref consumed);
-			return consumed ? 1 : 0;
-		}
-
-		/// <summary>
-		/// In some scenarios you may need override default Intercept callback (i.e. in Unity you need to set special annotation in IL2CPP for callback from native code).
-		/// You then can call <see cref="HandleIntercept"/> to use override callback as wrapper.
-		/// You must call this method before first Host created.
-		/// </summary>
-		/// <param name="interceptCallback"></param>
-		public static void OverrideInterceptCallback(InterceptCallback interceptCallback)
-		{
-			overridenInterceptCallback = interceptCallback;
-		}
 	}
 
 	public struct Peer {

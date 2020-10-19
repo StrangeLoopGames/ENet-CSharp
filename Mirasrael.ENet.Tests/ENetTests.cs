@@ -22,20 +22,22 @@ namespace Mirasrael.ENet.Tests
                 targetAddress.SetHost("127.0.0.1");
                 targetHost.Create(targetAddress, 1);
 
-                var originalString = "Hello World";
-                var receivedString = string.Empty;
-                targetHost.RawDataReceived += (IntPtr address, IntPtr dataPtr, int length, ref bool consumed) =>
+                var  originalString = "Hello World";
+                var  receivedString = string.Empty;
+                using (SetInterceptCallback(targetHost, (ref Event @event, ref Address address, IntPtr dataPtr, int length) =>
                 {
                     var data = new byte[length];
-                    Marshal.Copy(dataPtr, data, 0, (int)length);
+                    Marshal.Copy(dataPtr, data, 0, length);
                     receivedString = Encoding.UTF8.GetString(data);
-                };
+                    return 0;
+                }))
+                {
+                    var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+                    socket.SendTo(Encoding.UTF8.GetBytes("Hello World"), new IPEndPoint(IPAddress.Loopback, targetAddress.Port));
 
-                var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-                socket.SendTo(Encoding.UTF8.GetBytes("Hello World"), new IPEndPoint(IPAddress.Loopback, targetAddress.Port));
-
-                Assert.AreEqual(0, targetHost.Service(100, out _));
-                Assert.AreEqual(originalString, receivedString);
+                    Assert.AreEqual(0, targetHost.Service(100, out _));
+                    Assert.AreEqual(originalString, receivedString);
+                }
             }
         }
 
@@ -56,22 +58,20 @@ namespace Mirasrael.ENet.Tests
                 address.SetIP("127.0.0.1");
                 host.Create(address, 10, 2, 100, 200);
 
-                targetHost.RawDataReceived += (IntPtr receivedAddressPtr, IntPtr dataPtr, int length, ref bool consumed) =>
+                using (SetInterceptCallback(targetHost, (ref Event @event, ref Address receivedAddress, IntPtr dataPtr, int length) =>
                 {
-                    unsafe
-                    {
-                        var data            = new byte[length];
-                        var receivedAddress = (Address*)receivedAddressPtr;
-                        Assert.AreEqual(receivedAddress->Port, 10000);
-                        Assert.AreEqual(receivedAddress->GetIP(), "127.0.0.1");
-                        Marshal.Copy(dataPtr, data, 0, (int)length);
-                        receivedString = Encoding.UTF8.GetString(data);
-                    }
-                };
-
-                host.SendRaw(targetAddress, Encoding.UTF8.GetBytes($"++{originalString}++"), 2, Encoding.UTF8.GetBytes($"++{originalString}++").Length - 4);
-                Assert.AreEqual(0, targetHost.Service(100, out _));
-                Assert.AreEqual(originalString, receivedString);
+                    var data = new byte[length];
+                    Assert.AreEqual(receivedAddress.Port, 10000);
+                    Assert.AreEqual(receivedAddress.GetIP(), "127.0.0.1");
+                    Marshal.Copy(dataPtr, data, 0, length);
+                    receivedString = Encoding.UTF8.GetString(data);
+                    return 0;
+                }))
+                {
+                    host.SendRaw(targetAddress, Encoding.UTF8.GetBytes($"++{originalString}++"), 2, Encoding.UTF8.GetBytes($"++{originalString}++").Length - 4);
+                    Assert.AreEqual(0, targetHost.Service(100, out _));
+                    Assert.AreEqual(originalString, receivedString);
+                }
             }
         }
 
@@ -100,48 +100,50 @@ namespace Mirasrael.ENet.Tests
                 using (var server = new Host())
                 {
                     client.Create(Address.AnyV4, 1);
-                    client.RawDataReceived += (IntPtr ptr, IntPtr data, int length, ref bool consumed) => { };
 
                     var address = new Address();
                     address.Port = 10000;
                     address.SetIP("127.0.0.1");
 
-
                     server.Create(address, 10);
-                    server.RawDataReceived += (IntPtr ptr, IntPtr data, int length, ref bool consumed) => { };
 
-                    var netEvent = default(Event);
-                    var peer     = client.Connect(address);
-                    while (peer.State != PeerState.Connected)
+                    using (SetInterceptCallback(client, (ref Event @event, ref Address receivedAddress, IntPtr data, int length) => 0))
+                    using (SetInterceptCallback(server, (ref Event @event, ref Address receivedAddress, IntPtr data, int length) => 0))
                     {
-                        if (server.Service(0, out netEvent) > 0)
-                            if (netEvent.Type == EventType.Receive)
-                                netEvent.Packet.Dispose();
-                        if (client.Service(100, out netEvent) > 0)
-                            if (netEvent.Type == EventType.Receive)
-                                netEvent.Packet.Dispose();
-                    }
 
-                    var numMessages = 10000;
-                    for (var i = 0; i < numMessages; i++)
-                    {
-                        var packet = default(Packet);
-                        packet.Create(Encoding.UTF8.GetBytes("Hello"));
-                        peer.Send(0, ref packet);
-                    }
+                        Event netEvent;
+                        var   peer = client.Connect(address);
+                        while (peer.State != PeerState.Connected)
+                        {
+                            if (server.Service(0, out netEvent) > 0)
+                                if (netEvent.Type == EventType.Receive)
+                                    netEvent.Packet.Dispose();
+                            if (client.Service(100, out netEvent) > 0)
+                                if (netEvent.Type == EventType.Receive)
+                                    netEvent.Packet.Dispose();
+                        }
 
-                    var packetsReceived = 0;
-                    while (packetsReceived != numMessages)
-                    {
-                        if (client.Service(0, out netEvent) > 0)
-                            if (netEvent.Type == EventType.Receive)
-                                netEvent.Packet.Dispose();
-                        if (server.Service(100, out netEvent) > 0)
-                            if (netEvent.Type == EventType.Receive)
-                            {
-                                packetsReceived++;
-                                netEvent.Packet.Dispose();
-                            }
+                        var numMessages = 10000;
+                        for (var i = 0; i < numMessages; i++)
+                        {
+                            var packet = default(Packet);
+                            packet.Create(Encoding.UTF8.GetBytes("Hello"));
+                            peer.Send(0, ref packet);
+                        }
+
+                        var packetsReceived = 0;
+                        while (packetsReceived != numMessages)
+                        {
+                            if (client.Service(0, out netEvent) > 0)
+                                if (netEvent.Type == EventType.Receive)
+                                    netEvent.Packet.Dispose();
+                            if (server.Service(100, out netEvent) > 0)
+                                if (netEvent.Type == EventType.Receive)
+                                {
+                                    packetsReceived++;
+                                    netEvent.Packet.Dispose();
+                                }
+                        }
                     }
                 }
             }
@@ -170,6 +172,20 @@ namespace Mirasrael.ENet.Tests
             AssertIP("ff02::1");
             AssertIP("ff02::1:ff23:a050");
             AssertIP("0.0.0.0");
+        }
+
+        private struct CallbackRegistration : IDisposable
+        {
+            private InterceptCallback callback;
+
+            public CallbackRegistration(InterceptCallback callback) { this.callback = callback; }
+            public void Dispose() => this.callback = null;
+        }
+
+        private static CallbackRegistration SetInterceptCallback(Host host, InterceptCallback callback)
+        {
+            host.SetInterceptCallback(callback);
+            return new CallbackRegistration(callback);
         }
     }
 }
