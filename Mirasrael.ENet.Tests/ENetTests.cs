@@ -24,7 +24,7 @@ namespace Mirasrael.ENet.Tests
 
                 var originalString = "Hello World";
                 var receivedString = string.Empty;
-                targetHost.RawDataReceived += (IntPtr address, IntPtr dataPtr, uint length, ref bool consumed) =>
+                targetHost.RawDataReceived += (IntPtr address, IntPtr dataPtr, int length, ref bool consumed) =>
                 {
                     var data = new byte[length];
                     Marshal.Copy(dataPtr, data, 0, (int)length);
@@ -56,7 +56,7 @@ namespace Mirasrael.ENet.Tests
                 address.SetIP("127.0.0.1");
                 host.Create(address, 10, 2, 100, 200);
 
-                targetHost.RawDataReceived += (IntPtr receivedAddressPtr, IntPtr dataPtr, uint length, ref bool consumed) =>
+                targetHost.RawDataReceived += (IntPtr receivedAddressPtr, IntPtr dataPtr, int length, ref bool consumed) =>
                 {
                     unsafe
                     {
@@ -100,7 +100,7 @@ namespace Mirasrael.ENet.Tests
                 using (var server = new Host())
                 {
                     client.Create(Address.AnyV4, 1);
-                    client.RawDataReceived += (IntPtr ptr, IntPtr data, uint length, ref bool consumed) => { };
+                    client.RawDataReceived += (IntPtr ptr, IntPtr data, int length, ref bool consumed) => { };
 
                     var address = new Address();
                     address.Port = 10000;
@@ -108,7 +108,7 @@ namespace Mirasrael.ENet.Tests
 
 
                     server.Create(address, 10);
-                    server.RawDataReceived += (IntPtr ptr, IntPtr data, uint length, ref bool consumed) => { };
+                    server.RawDataReceived += (IntPtr ptr, IntPtr data, int length, ref bool consumed) => { };
 
                     var netEvent = default(Event);
                     var peer     = client.Connect(address);
