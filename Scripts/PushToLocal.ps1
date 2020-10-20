@@ -20,4 +20,4 @@ Write-Host "Package installed to $localPath"
 
 [xml]$xml = Get-Content -Path "$PSScriptRoot/../Mirasrael.ENet.nuspec"
 $meta = $xml.package.metadata
-Remove-Item "$HOME/.nuget/packages/$($meta.id.ToLower())/$($meta.version)/" -Recurse -Force
+Remove-Item "$HOME/.nuget/packages/$($meta.id.ToLower())/$($meta.version)/" -Recurse -Force -ErrorAction Ignore
