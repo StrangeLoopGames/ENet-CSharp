@@ -31,7 +31,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 4
-#define ENET_VERSION_PATCH 3
+#define ENET_VERSION_PATCH 4
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -637,7 +637,7 @@ extern "C" {
 
 	typedef uint64_t (ENET_CALLBACK *ENetChecksumCallback)(const ENetBuffer* buffers, int bufferCount);
 
-	typedef int (ENET_CALLBACK *ENetInterceptCallback)(ENetEvent* event, ENetAddress*, uint8_t* receivedData, int receivedDataLength);
+	typedef int (ENET_CALLBACK *ENetInterceptCallback)(ENetEvent* event, ENetAddress* address, uint8_t* receivedData, int receivedDataLength);
 
 	typedef struct _ENetHost {
 		ENetSocket socket;
@@ -2710,7 +2710,7 @@ extern "C" {
 				reliableWindow = outgoingCommand->reliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
 
 				if (channel != NULL) {
-					if (!windowWrap && outgoingCommand->sendAttempts < 1 && !(outgoingCommand->reliableSequenceNumber % ENET_PEER_RELIABLE_WINDOW_SIZE) && (channel->reliableWindows[(reliableWindow + ENET_PEER_RELIABLE_WINDOWS - 1) % ENET_PEER_RELIABLE_WINDOWS] >= ENET_PEER_RELIABLE_WINDOW_SIZE || channel->usedReliableWindows & ((((1 << ENET_PEER_FREE_RELIABLE_WINDOWS) - 1) << reliableWindow) | (((1 << ENET_PEER_FREE_RELIABLE_WINDOWS) - 1) >> (ENET_PEER_RELIABLE_WINDOWS - reliableWindow)))))
+					if (!windowWrap && outgoingCommand->sendAttempts < 1 && !(outgoingCommand->reliableSequenceNumber % ENET_PEER_RELIABLE_WINDOW_SIZE) && (channel->reliableWindows[(reliableWindow + ENET_PEER_RELIABLE_WINDOWS - 1) % ENET_PEER_RELIABLE_WINDOWS] >= ENET_PEER_RELIABLE_WINDOW_SIZE || channel->usedReliableWindows & ((((1 << (ENET_PEER_FREE_RELIABLE_WINDOWS + 1)) - 1) << reliableWindow) | (((1 << (ENET_PEER_FREE_RELIABLE_WINDOWS + 1)) - 1) >> (ENET_PEER_RELIABLE_WINDOWS - reliableWindow)))))
 						windowWrap = 1;
 
 					if (windowWrap) {

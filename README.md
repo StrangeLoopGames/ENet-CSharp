@@ -38,7 +38,7 @@ Compiled libraries
 --------
 You can grab compiled libraries from the [release](https://github.com/nxrighthere/ENet-CSharp/releases) section or from [NuGet](https://www.nuget.org/packages/ENet-CSharp):
 
-`ENet-CSharp` contains compiled assembly with native libraries for the .NET environment (.NET Standard 2.0).
+`ENet-CSharp` contains compiled assembly with native libraries for the .NET environment (.NET Standard 2.1).
 
 `ENet-Unity` contains script with native libraries for the Unity.
 
@@ -224,7 +224,7 @@ Definitions of a flags for `Peer.Send()` function:
 
 `PacketFlags.Unsequenced` a packet will not be sequenced with other packets and may be delivered out of order. This flag makes delivery unreliable.
 
-`PacketFlags.NoAllocate` a packet will not allocate data, and the user must supply it instead. Packet lifetime should be tracked using the appropriate callback.
+`PacketFlags.NoAllocate` a packet will not allocate data, and the user must supply it instead. Packet lifetime should be tracked using the `PacketFreeCallback` callback.
 
 `PacketFlags.UnreliableFragmented` a packet will be unreliably fragmented if it exceeds the MTU. By default, unreliable packets that exceed the MTU are fragmented and transmitted reliably. This flag should be used to explicitly indicate packets that should remain unreliable.
 
@@ -241,11 +241,11 @@ Definitions of event types for `Event.Type` property:
 
 `EventType.Connect` a connection request initiated by `Peer.Connect()` function has completed. `Event.Peer` returns a peer which successfully connected. `Event.Data` returns the user-supplied data describing the connection or 0 if none is available.
 
-`EventType.Disconnect` a peer has disconnected. This event is generated on a successful completion of a disconnect initiated by `Peer.Disconnect`. `Event.Peer` returns a peer which disconnected. `Event.Data` returns the user-supplied data describing the disconnection or 0 if none is available.
+`EventType.Disconnect` a peer has disconnected. This event is generated on a successful completion of a disconnect initiated by `Peer.Disconnect()` function. `Event.Peer` returns a peer which disconnected. `Event.Data` returns the user-supplied data describing the disconnection or 0 if none is available.
 
 `EventType.Receive` a packet has been received from a peer. `Event.Peer` returns a peer which sent the packet. `Event.ChannelID` specifies the channel number upon which the packet was received. `Event.Packet` returns a packet that was received, and this packet must be destroyed using `Event.Packet.Dispose()` function after use.
 
-`EventType.Timeout` a peer has timed out. This event occurs if a peer has timed out or if a connection request initialized by `Peer.Connect` has timed out. `Event.Peer` returns a peer which timed out.
+`EventType.Timeout` a peer has timed out. This event occurs if a peer has timed out or if a connection request initialized by `Peer.Connect()` has timed out. `Event.Peer` returns a peer which timed out.
 
 #### PeerState
 Definitions of peer states for `Peer.State` property:
@@ -280,7 +280,7 @@ Provides per packet events.
 #### Host callbacks
 Provides per host events.
 
-`InterceptCallback(ref Event @event, IntPtr receivedData, int receivedDataLength)` notifies when a raw UDP packet is intercepted. Status code returned from this callback instructs ENet how the set event should be handled. Returning 1 indicates dispatching of the set event by the service. Returning 0 indicates that ENet subsystems should handle received data. Returning -1 indicates an error. A reference to the delegate should be preserved from being garbage collected.
+`InterceptCallback(ref Event @event, ref Address address, IntPtr receivedData, int receivedDataLength)` notifies when a raw UDP packet is intercepted. Status code returned from this callback instructs ENet how the set event should be handled. Returning 1 indicates dispatching of the set event by the service. Returning 0 indicates that ENet subsystems should handle received data. Returning -1 indicates an error. A reference to the delegate should be preserved from being garbage collected.
 
 `ChecksumCallback(IntPtr buffers, int bufferCount)` notifies when a checksum should be computed for buffers at sending and receiving. A value returned from this callback is a 64-bit checksum. ENet automatically handles integrity verification of packets if a checksum mechanism is enabled at both ends. Can be used with `ENet.Library.CRC64()` function. A reference to the delegate should be preserved from being garbage collected.
 
