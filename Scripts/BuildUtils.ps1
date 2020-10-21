@@ -67,10 +67,10 @@ function BuildUitls-DownloadAppVeyorRuntimes([string]$Token = "", [string]$Accou
 }
 
 function BuildUtils-BuildPackage([string]$AppVeyorToken = "", [string]$AccountName = "mirasrael", [string]$BuildId = "") {
-    [Void](MSBuild.exe Mirasrael.ENet.sln -p:Configuration=Release)
+    [Void](MSBuild.exe ENet-CSharp.sln -p:Configuration=Release)
     [Void](BuildUitls-DownloadAppVeyorRuntimes -Token $AppVeyorToken -AccountName $AccountName -BuildId $BuildId)
 
-    $nuspec = "Mirasrael.ENet.nuspec"
+    $nuspec = "ENet-CSharp.nuspec"
     [Void](nuget pack $nuspec)
     [xml]$xml = Get-Content -Path $nuspec
     $meta = $xml.package.metadata

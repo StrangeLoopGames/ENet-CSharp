@@ -1,4 +1,4 @@
-namespace Mirasrael.ENet.Tests
+namespace StrangeLoopGames.ENet.Tests
 {
     using System;
     using System.Net;

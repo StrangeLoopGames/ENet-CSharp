@@ -2,7 +2,7 @@
   <img src="https://i.imgur.com/CxkUxTs.png" alt="alt logo">
 </p>
 
-[![GitHub release](https://img.shields.io/github/release/StrangeLoopGames/ENet-CSharp.svg)](https://github.com/StrangeLoopGames/ENet-CSharp/releases) [![NuGet](https://img.shields.io/nuget/v/ENet-CSharp.svg)](https://www.nuget.org/packages/Mirasrael.ENet/)
+[![GitHub release](https://img.shields.io/github/release/StrangeLoopGames/ENet-CSharp.svg)](https://github.com/StrangeLoopGames/ENet-CSharp/releases) [![NuGet](https://img.shields.io/nuget/v/ENet-CSharp.svg)](https://www.nuget.org/packages/StrangeLoopGames.ENet/)
 
 This is an independent ENet implementation with a modified protocol for C, C++, C#, and other languages.
 

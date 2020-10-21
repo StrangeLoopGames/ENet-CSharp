@@ -29,7 +29,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 
-[assembly: InternalsVisibleTo("Mirasrael.ENet.Tests")]
+[assembly: InternalsVisibleTo("StrangeLoopGames.ENet.Tests")]
 
 namespace ENet
 {

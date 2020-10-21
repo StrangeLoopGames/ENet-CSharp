@@ -18,6 +18,6 @@ $localPath = "$localRepo/$packageName"
 Copy-Item $packageName $localPath
 Write-Host "Package installed to $localPath"
 
-[xml]$xml = Get-Content -Path "$PSScriptRoot/../Mirasrael.ENet.nuspec"
+[xml]$xml = Get-Content -Path "$PSScriptRoot/../ENet-CSharp.nuspec"
 $meta = $xml.package.metadata
 Remove-Item "$HOME/.nuget/packages/$($meta.id.ToLower())/$($meta.version)/" -Recurse -Force -ErrorAction Ignore

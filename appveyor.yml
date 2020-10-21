@@ -53,14 +53,14 @@ build_script:
   - cmake --build . --config Release
 
 before_test:
-  - cmd: dotnet build Mirasrael.ENet.Tests/Mirasrael.ENet.Tests.csproj -c Release -f %TARGET_FRAMEFORK%
-  - sh: dotnet build Mirasrael.ENet.Tests/Mirasrael.ENet.Tests.csproj -c Release -f $TARGET_FRAMEFORK
-  - cmd: copy %ARTIFACT_PATH% Mirasrael.ENet.Tests\bin\%PLATFORM%\Release\%TARGET_FRAMEFORK%\
-  - sh: cp $ARTIFACT_PATH Mirasrael.ENet.Tests/bin/$PLATFORM/Release/$TARGET_FRAMEFORK/
+  - cmd: dotnet build StrangeLoopGames.ENet.Tests/StrangeLoopGames.ENet.Tests.csproj -c Release -f %TARGET_FRAMEFORK%
+  - sh: dotnet build StrangeLoopGames.ENet.Tests/StrangeLoopGames.ENet.Tests.csproj -c Release -f $TARGET_FRAMEFORK
+  - cmd: copy %ARTIFACT_PATH% StrangeLoopGames.ENet.Tests\bin\%PLATFORM%\Release\%TARGET_FRAMEFORK%\
+  - sh: cp $ARTIFACT_PATH StrangeLoopGames.ENet.Tests/bin/$PLATFORM/Release/$TARGET_FRAMEFORK/
 
 test_script:
-  - cmd: dotnet test Mirasrael.ENet.Tests/Mirasrael.ENet.Tests.csproj -c Release --framework %TARGET_FRAMEFORK%
-  - sh: dotnet test Mirasrael.ENet.Tests/Mirasrael.ENet.Tests.csproj -c Release --framework $TARGET_FRAMEFORK
+  - cmd: dotnet test StrangeLoopGames.ENet.Tests/StrangeLoopGames.ENet.Tests.csproj -c Release --framework %TARGET_FRAMEFORK%
+  - sh: dotnet test StrangeLoopGames.ENet.Tests/StrangeLoopGames.ENet.Tests.csproj -c Release --framework $TARGET_FRAMEFORK
 
 artifacts:
   - path: '$(ARTIFACT_PATH)'
