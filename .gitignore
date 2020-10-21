@@ -5,4 +5,4 @@ bin
 obj
 .idea
 *.nupkg
-
+.DS_Store
