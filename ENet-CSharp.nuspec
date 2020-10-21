@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>StrangeLoopGames.ENet</id>
-    <version>2.4.4.1-beta</version>
+    <version>2.4.5.1</version>
     <title>StrangeLoopGames adaptation of ENet-CSharp</title>
     <authors>Stanislav Denisov; Alexander Bondarev</authors>
     <owners>nxrighthere; mirasrael</owners>
