@@ -256,9 +256,14 @@ extern "C" {
 		ENET_PROTOCOL_COMMAND_BANDWIDTH_LIMIT          = 10,
 		ENET_PROTOCOL_COMMAND_THROTTLE_CONFIGURE       = 11,
 		ENET_PROTOCOL_COMMAND_SEND_UNRELIABLE_FRAGMENT = 12,
-		ENET_PROTOCOL_COMMAND_COUNT                    = 13,
+		ENET_PROTOCOL_COMMAND_NOTIFY                   = 13,
+		ENET_PROTOCOL_COMMAND_COUNT                    = 14,
 		ENET_PROTOCOL_COMMAND_MASK                     = 0x0F
 	} ENetProtocolCommand;
+
+	typedef enum _ENetProtocolNotifyCode {
+	    ENET_PROTOCOL_NOTIFY_CONNECTIONS_EXCEED = 1
+    } ENetProtocolNotifyCode;
 
 	typedef enum _ENetProtocolFlag {
 		ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE = (1 << 7),
@@ -377,6 +382,11 @@ extern "C" {
 		uint32_t fragmentOffset;
 	} ENET_PACKED ENetProtocolSendFragment;
 
+    typedef struct _ENetProtocolNotify {
+        ENetProtocolCommandHeader header;
+        uint16_t code;
+    } ENET_PACKED ENetProtocolNotify;
+
 	typedef union _ENetProtocol {
 		ENetProtocolCommandHeader header;
 		ENetProtocolAcknowledge acknowledge;
@@ -390,6 +400,7 @@ extern "C" {
 		ENetProtocolSendFragment sendFragment;
 		ENetProtocolBandwidthLimit bandwidthLimit;
 		ENetProtocolThrottleConfigure throttleConfigure;
+		ENetProtocolNotify notify;
 	} ENET_PACKED ENetProtocol;
 
 	#ifdef _MSC_VER
@@ -624,7 +635,8 @@ extern "C" {
 		ENET_EVENT_TYPE_CONNECT            = 1,
 		ENET_EVENT_TYPE_DISCONNECT         = 2,
 		ENET_EVENT_TYPE_RECEIVE            = 3,
-		ENET_EVENT_TYPE_DISCONNECT_TIMEOUT = 4
+		ENET_EVENT_TYPE_DISCONNECT_TIMEOUT = 4,
+		ENET_EVENT_TYPE_NOTIFY             = 5
 	} ENetEventType;
 
 	typedef struct _ENetEvent {
@@ -715,7 +727,7 @@ extern "C" {
 	ENET_API ENetPeer* enet_host_connect(ENetHost*, const ENetAddress*, size_t, uint32_t);
 	ENET_API int enet_host_check_events(ENetHost*, ENetEvent*);
 	ENET_API int enet_host_service(ENetHost*, ENetEvent*, uint32_t);
-    ENET_API int  enet_host_send_raw(ENetHost*, const ENetAddress*, uint8_t*, size_t);
+    ENET_API int  enet_host_send_raw(ENetHost*, const ENetAddress*, void*, size_t);
     ENET_API int  enet_host_send_raw_ex(ENetHost *host, const ENetAddress*, uint8_t*, size_t, size_t);
 	ENET_API void enet_host_flush(ENetHost*);
 	ENET_API void enet_host_broadcast(ENetHost*, uint8_t, ENetPacket*);
@@ -1514,7 +1526,8 @@ extern "C" {
 		sizeof(ENetProtocolSendUnsequenced),
 		sizeof(ENetProtocolBandwidthLimit),
 		sizeof(ENetProtocolThrottleConfigure),
-		sizeof(ENetProtocolSendFragment)
+		sizeof(ENetProtocolSendFragment),
+		sizeof(ENetProtocolNotify)
 	};
 
 	size_t enet_protocol_command_size(uint8_t commandNumber) {
@@ -1754,6 +1767,20 @@ extern "C" {
 		return commandNumber;
 	}
 
+	static int enet_protocol_notify_outgoing_peer(ENetHost* host, uint16_t outgoingPeerID, uint16_t notifyCode)
+    {
+	    struct {
+            uint16_t peerID;
+            ENetProtocolNotify notify;
+	    } command;
+        command.peerID = ENET_HOST_TO_NET_16(outgoingPeerID);
+        command.notify.header.channelID = 0;
+        command.notify.header.command = ENET_PROTOCOL_COMMAND_NOTIFY;
+        command.notify.header.reliableSequenceNumber = 0;
+        command.notify.code = notifyCode;
+	    return enet_host_send_raw(host, &host->receivedAddress, &command, sizeof(command));
+    }
+
 	static ENetPeer* enet_protocol_handle_connect(ENetHost* host, ENetProtocolHeader* header, ENetProtocol* command) {
 		uint8_t incomingSessionID, outgoingSessionID;
 		uint32_t mtu, windowSize;
@@ -1779,7 +1806,13 @@ extern "C" {
 		}
 
 		if (peer == NULL || duplicatePeers >= host->duplicatePeers)
-			return NULL;
+		{
+            #ifdef ENET_DEBUG
+            perror("Server connections exceed");
+            #endif
+		    enet_protocol_notify_outgoing_peer(host, ENET_NET_TO_HOST_16(command->connect.outgoingPeerID), ENET_PROTOCOL_NOTIFY_CONNECTIONS_EXCEED);
+            return NULL;
+        }
 
 		if (channelCount > host->channelLimit)
 			channelCount = host->channelLimit;
@@ -2179,6 +2212,16 @@ extern "C" {
 		return 0;
 	}
 
+	static int enet_protocol_handle_notify(ENetHost* host, ENetPeer* peer, const ENetProtocolNotify* notify, ENetEvent* event)
+    {
+	    event->type = ENET_EVENT_TYPE_NOTIFY;
+	    event->peer = peer;
+	    event->data = notify->code;
+	    if (notify->code == ENET_PROTOCOL_NOTIFY_CONNECTIONS_EXCEED)
+            enet_protocol_dispatch_state(host, peer, ENET_PEER_STATE_ZOMBIE);
+	    return 1;
+    }
+
 	static int enet_protocol_handle_disconnect(ENetHost* host, ENetPeer* peer, const ENetProtocol* command) {
 		if (peer->state == ENET_PEER_STATE_DISCONNECTED || peer->state == ENET_PEER_STATE_ZOMBIE || peer->state == ENET_PEER_STATE_ACKNOWLEDGING_DISCONNECT)
 			return 0;
@@ -2513,6 +2556,11 @@ extern "C" {
 						goto commandError;
 
 					break;
+
+			    case ENET_PROTOCOL_COMMAND_NOTIFY:
+			        if (enet_protocol_handle_notify(host, peer, &command->notify, event))
+			            goto commandError;
+			        break;
 
 				default:
 					goto commandError;
@@ -4028,7 +4076,7 @@ extern "C" {
      *  @retval <0 error
      *  @sa enet_socket_send
      */
-    int enet_host_send_raw(ENetHost *host, const ENetAddress* address, uint8_t* data, size_t dataLength) {
+    int enet_host_send_raw(ENetHost *host, const ENetAddress* address, void* data, size_t dataLength) {
         ENetBuffer buffer;
         buffer.data = data;
         buffer.dataLength = dataLength;

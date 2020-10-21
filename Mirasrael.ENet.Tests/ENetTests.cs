@@ -5,8 +5,9 @@ namespace Mirasrael.ENet.Tests
     using System.Net.Sockets;
     using System.Runtime.InteropServices;
     using System.Text;
-    using global::ENet;
     using NUnit.Framework;
+    using global::ENet;
+    using Event = global::ENet.Event;
 
     public class Tests
     {
@@ -172,6 +173,46 @@ namespace Mirasrael.ENet.Tests
             AssertIP("ff02::1");
             AssertIP("ff02::1:ff23:a050");
             AssertIP("0.0.0.0");
+        }
+
+        [Test]
+        public void TestConnectionsExceed()
+        {
+            Library.Initialize();
+            try
+            {
+                var server = new Host();
+                server.Create(Address.AnyV4, 0);
+
+                var client        = new Host();
+                client.Create(Address.AnyV4, 1);
+                var address = new Address { Port = server.SocketAddress.Port };
+                address.SetIP("127.0.0.1");
+                client.Connect(address);
+
+                var maxAttempts       = 100;
+                var connectionsExceed = false;
+                while (!connectionsExceed && maxAttempts-- > 0)
+                {
+                    this.HandleNext(client, 0, e => connectionsExceed = e.Type == EventType.Notify && e.Data == (ulong)NotifyCode.ConnectionsExceed);
+                    this.HandleNext(server, 1);
+                }
+                Assert.That(connectionsExceed, Is.True);
+            }
+            finally
+            {
+                Library.Deinitialize();
+            }
+        }
+
+        private void HandleNext(Host host, int timeout, Action<Event> handler = null)
+        {
+            if (host.Service(timeout, out var netEvent) > 0)
+            {
+                handler?.Invoke(netEvent);
+                if (netEvent.Type == EventType.Receive)
+                    netEvent.Packet.Dispose();
+            }
         }
 
         private struct CallbackRegistration : IDisposable

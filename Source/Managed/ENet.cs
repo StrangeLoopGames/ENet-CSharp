@@ -52,7 +52,13 @@ namespace ENet
 		Connect = 1,
 		Disconnect = 2,
 		Receive = 3,
-		Timeout = 4
+		Timeout = 4,
+		Notify = 5
+	}
+
+	public enum NotifyCode
+	{
+		ConnectionsExceed = 1
 	}
 
 	public enum PeerState {
