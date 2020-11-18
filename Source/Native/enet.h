@@ -148,6 +148,20 @@
 	#define ENET_CALLBACK
 	#define ENET_API extern
 	#define ENET_SOCKET_ERROR(error) error
+
+	size_t strcpy_s(char* dest, size_t destsz, const char* src) {
+		if (dest == NULL || destsz == 0) return 0;
+		if (src != NULL) {
+			size_t len = strnlen(src, destsz);
+			if (len < destsz) {
+				strncpy(dest, src, len);
+				dest[len] = 0;
+				return len;
+			}
+		}
+		*dest = 0;
+		return 0;
+	}
 #endif
 
 #ifndef ENET_BUFFER_MAXIMUM
@@ -1060,7 +1074,7 @@ ENetError enet_get_last_error(char *error, size_t errorLength)
 }
 
 void enet_set_last_error_message(const char* message) {
-	strcpy_s(lastError.messageBuf, sizeof(lastError.messageBuf), "Max connections count is out of bound.");
+	strcpy_s(lastError.messageBuf, sizeof(lastError.messageBuf), message);
 }
 
 void enet_set_last_error_message_from_system() {
@@ -1068,8 +1082,6 @@ void enet_set_last_error_message_from_system() {
 	LPWSTR systemMsg = NULL;
 	if (FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&systemMsg, 0, NULL))
 		WideCharToMultiByte(CP_UTF8, 0, systemMsg, -1, lastError.messageBuf, sizeof(lastError.messageBuf), NULL, NULL);
-	else
-		wsprintfA(lastError.messageBuf, "Format failed: %i", GetLastError());
 	if (systemMsg != NULL)
 		LocalFree(systemMsg);
 #else

@@ -214,7 +214,7 @@ namespace StrangeLoopGames.ENet.Tests
                 var serverOne = new Host();
                 serverOne.Create(Address.AnyV4, 0);
                 var serverTwo = new Host();
-                Assert.That(() => serverTwo.Create(serverOne.SocketAddress, 0), Throws.Exception.TypeOf(typeof(ENetError)).With.Property(nameof(ENetError.Code)).EqualTo(ENetErrorCode.SocketBindFailed));
+                Assert.That(() => serverTwo.Create(serverOne.SocketAddress, 0), Throws.Exception.TypeOf(typeof(ENetError)).With.Property(nameof(ENetError.Code)).EqualTo(ENetErrorCode.SocketBindFailed).And.Property(nameof(ENetError.Message)).Not.Empty);
             }
             finally
             {
