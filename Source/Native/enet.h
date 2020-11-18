@@ -107,6 +107,7 @@
 
 	#define ENET_SOCKET_ERROR(error) ((error) == SOCKET_ERROR ? -1 : 0)
 #else
+	#define __STDC_WANT_LIB_EXT1__ 1
 	#include <sys/types.h>
 	#include <sys/ioctl.h>
 	#include <sys/time.h>

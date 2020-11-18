@@ -1,4 +1,4 @@
-function BuildUitls-DownloadAppVeyorRuntimes([string]$Token = "", [string]$AccountName = "mirasrael", [string]$BuildId = "") {
+function BuildUitls-DownloadAppVeyorRuntimes([string]$Token = "", [string]$AccountName = "theSLGjenkins", [string]$BuildId = "") {
     $apiUrl = 'https://ci.appveyor.com/api'
 
     if ($Token -eq "")
@@ -66,7 +66,7 @@ function BuildUitls-DownloadAppVeyorRuntimes([string]$Token = "", [string]$Accou
     }
 }
 
-function BuildUtils-BuildPackage([string]$AppVeyorToken = "", [string]$AccountName = "mirasrael", [string]$BuildId = "") {
+function BuildUtils-BuildPackage([string]$AppVeyorToken = "", [string]$AccountName = "theSLGjenkins", [string]$BuildId = "") {
     [Void](MSBuild.exe ENet-CSharp.sln -p:Configuration=Release)
     [Void](BuildUitls-DownloadAppVeyorRuntimes -Token $AppVeyorToken -AccountName $AccountName -BuildId $BuildId)
 

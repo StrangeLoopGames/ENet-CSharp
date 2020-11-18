@@ -1,4 +1,4 @@
-param([string]$AppVeyorToken = "", [string]$AccountName = "mirasrael", [string]$BuildId = "", [switch]$Help = $false)
+param([string]$AppVeyorToken = "", [string]$AccountName = "theSLGjenkins", [string]$BuildId = "", [switch]$Help = $false)
 
 if ($Help)
 {
