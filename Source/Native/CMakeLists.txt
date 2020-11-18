@@ -1,5 +1,8 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 3.1)
 project(enet C)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
 set(ENET_DEBUG "0" CACHE BOOL "Enable debug functionality")
 set(ENET_STATIC "0" CACHE BOOL "Create a static library")
