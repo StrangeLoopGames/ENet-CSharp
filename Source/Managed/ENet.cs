@@ -75,6 +75,20 @@ namespace ENet
 		Zombie = 9
 	}
 
+	public enum ENetErrorCode
+	{
+		None                     = 0,
+		PeersLimitOutOfBound = 1,
+		OutOfMemory              = 2,
+		SocketCreateFailed       = 3,
+		SocketBindFailed         = 4
+	}
+
+	public class ENetError : Exception {
+		public ENetErrorCode Code { get; }
+		public ENetError(ENetErrorCode errorCode, string message) : base(message) { this.Code = errorCode; }
+	}
+
 	[StructLayout(LayoutKind.Sequential)]
 	internal struct ENetEvent {
 		public EventType type;
@@ -533,14 +547,14 @@ namespace ENet
 				throw new InvalidOperationException("Host already created");
 
 			if (peerLimit < 0 || peerLimit > Library.maxPeers)
-				throw new ArgumentOutOfRangeException("peerLimit");
+				throw new ENetError(ENetErrorCode.PeersLimitOutOfBound, "Peers limit is more than max peers count.");
 
 			ThrowIfChannelsExceeded(channelLimit);
 
 			nativeHost = Native.enet_host_create(ref address, (IntPtr)peerLimit, (IntPtr)channelLimit, incomingBandwidth, outgoingBandwidth, bufferSize);
 
 			if (nativeHost == IntPtr.Zero)
-				throw new InvalidOperationException("Host creation call failed");
+				Library.ThrowLastError();
 		}
 
 		public int SendRaw(Address address, byte[] data, int offset, int length)
@@ -995,6 +1009,12 @@ namespace ENet
 		public static ulong CRC64(IntPtr buffers, int bufferCount) {
 			return Native.enet_crc64(buffers, bufferCount);
 		}
+
+		internal static void ThrowLastError() {
+			var buffer = new StringBuilder(4096);
+			var code = Native.enet_get_last_error(buffer, (IntPtr)buffer.Capacity);
+			throw new ENetError(code, buffer.ToString());
+		}
 	}
 
 	[SuppressUnmanagedCodeSecurity]
@@ -1022,6 +1042,9 @@ namespace ENet
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
         internal static extern ulong enet_crc64(IntPtr buffers, int bufferCount);
+
+        [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern ENetErrorCode enet_get_last_error(StringBuilder error, IntPtr errorLength);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int enet_address_set_ip(ref Address address, string ip);

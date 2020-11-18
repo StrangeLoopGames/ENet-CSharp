@@ -690,6 +690,14 @@ extern "C" {
 		size_t maximumWaitingData;
 	} ENetHost;
 
+    typedef enum _ENetError {
+        ENET_ERROR_NONE = 0,
+        ENET_ERROR_PEERS_LIMIT_OUT_OF_BOUND = 1,
+        ENET_ERROR_OUT_OF_MEMORY = 2,
+        ENET_ERROR_SOCKET_CREATE_FAILED = 3,
+        ENET_ERROR_SOCKET_BIND_FAILED = 4
+    } ENetError;
+
 /*
 =======================================================================
 
@@ -705,6 +713,7 @@ extern "C" {
 	ENET_API int enet_array_is_zeroed(const uint8_t*, int);
 	ENET_API uint32_t enet_time_get(void);
 	ENET_API uint64_t enet_crc64(const ENetBuffer*, int);
+    ENET_API ENetError enet_get_last_error(char*, size_t);
 
 	ENET_API ENetPacket* enet_packet_create(const void*, size_t, uint32_t);
 	ENET_API ENetPacket* enet_packet_create_offset(const void*, size_t, size_t, uint32_t);
@@ -1026,7 +1035,63 @@ extern "C" {
 				#define ENET_ATOMIC_DEC_BY(variable, delta) __sync_fetch_and_sub((variable), (delta), 1)
 			#endif
 		#undef AT_HAVE_ATOMICS
-	#endif
+    #endif
+
+/*
+=======================================================================
+ Error handling
+=======================================================================
+*/
+static struct {
+    ENetError code;
+    char messageBuf[4096];
+} lastError;
+
+/*
+ * Returns last error for following operation(s): enet_host_create.
+ * It returns last error value and copies error content to the error arg if the errorLength enough. Otherwise it will be empty string.
+ * Not defined for other operations.
+ */
+ENetError enet_get_last_error(char *error, size_t errorLength)
+{
+    strcpy_s(error, errorLength, lastError.messageBuf);
+    return lastError.code;
+}
+
+void enet_set_last_error_message(const char* message) {
+    strcpy_s(lastError.messageBuf, sizeof(lastError.messageBuf), "Max connections count is out of bound.");
+}
+
+void enet_set_last_error_message_from_system() {
+#ifdef _WIN32
+    LPWSTR systemMsg = NULL;
+    if (FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&systemMsg, 0, NULL))
+        WideCharToMultiByte(CP_UTF8, 0, systemMsg, -1, lastError.messageBuf, sizeof(lastError.messageBuf), NULL, NULL);
+    else
+        wsprintfA(lastError.messageBuf, "Format failed: %i", GetLastError());
+    if (systemMsg != NULL)
+        LocalFree(systemMsg);
+#else
+    strcpy_s(lastError.messageBuf, sizeof(lastError.messageBuf), strerror(errno));
+#endif
+}
+
+void enet_set_last_error(const ENetError error)
+{
+    lastError.code = error;
+    lastError.messageBuf[0] = 0;
+    switch(error) {
+        case ENET_ERROR_PEERS_LIMIT_OUT_OF_BOUND:
+            enet_set_last_error_message("Peers limit is more than max peers count.");
+            break;
+        case ENET_ERROR_OUT_OF_MEMORY:
+            enet_set_last_error_message("Out of memory.");
+            break;
+        default:
+            enet_set_last_error_message_from_system();
+            break;
+    }
+}
 
 /*
 =======================================================================
@@ -1035,7 +1100,6 @@ extern "C" {
 
 =======================================================================
 */
-
 	static ENetCallbacks callbacks = {
 		malloc,
 		free,
@@ -3871,40 +3935,43 @@ extern "C" {
 		ENetHost* host;
 		ENetPeer* currentPeer;
 
-		if (peerCount > ENET_PROTOCOL_MAXIMUM_PEER_ID)
-			return NULL;
+		if (peerCount > ENET_PROTOCOL_MAXIMUM_PEER_ID) {
+            enet_set_last_error(ENET_ERROR_PEERS_LIMIT_OUT_OF_BOUND);
+            goto on_error_noop;
+        }
 
 		host = (ENetHost*)enet_malloc(sizeof(ENetHost));
 
-		if (host == NULL)
-			return NULL;
+		if (host == NULL) {
+            enet_set_last_error(ENET_ERROR_OUT_OF_MEMORY);
+            goto on_error_noop;
+        }
 
 		memset(host, 0, sizeof(ENetHost));
 
 		host->peers = (ENetPeer*)enet_malloc(peerCount * sizeof(ENetPeer));
 
 		if (host->peers == NULL) {
-			enet_free(host);
-
-			return NULL;
+            enet_set_last_error(ENET_ERROR_OUT_OF_MEMORY);
+			goto on_error_after_host_alloc;
 		}
 
 		memset(host->peers, 0, peerCount * sizeof(ENetPeer));
 
 		ENetIPVersion ipVersion = enet_address_is_ip4(address) ? ENET_IP_VERSION_4 : ENET_IP_VERSION_6;
 		host->socket = enet_socket_create(ENET_SOCKET_TYPE_DATAGRAM, ipVersion);
+		if (host->socket == ENET_SOCKET_NULL)
+        {
+		    enet_set_last_error(ENET_ERROR_SOCKET_CREATE_FAILED);
+		    goto on_error_after_peers_alloc;
+        }
 
-		if (host->socket != ENET_SOCKET_NULL && ipVersion == ENET_IP_VERSION_6)
+		if (ipVersion == ENET_IP_VERSION_6)
 			enet_socket_set_option(host->socket, ENET_SOCKOPT_IPV6_V6ONLY, 0);
 
-		if (host->socket == ENET_SOCKET_NULL || (address != NULL && enet_socket_bind(host->socket, address) < 0)) {
-			if (host->socket != ENET_SOCKET_NULL)
-				enet_socket_destroy(host->socket);
-
-			enet_free(host->peers);
-			enet_free(host);
-
-			return NULL;
+		if (address != NULL && enet_socket_bind(host->socket, address) < 0) {
+			enet_set_last_error(ENET_ERROR_SOCKET_BIND_FAILED);
+			goto on_error_after_socket_create;
 		}
 
 		if (bufferSize > ENET_HOST_BUFFER_SIZE_MAX)
@@ -3971,6 +4038,14 @@ extern "C" {
 		}
 
 		return host;
+    on_error_after_socket_create:
+        enet_socket_destroy(host->socket);
+    on_error_after_peers_alloc:
+	    enet_free(host->peers);
+    on_error_after_host_alloc:
+        enet_free(host);
+    on_error_noop:
+	    return NULL;
 	}
 
 	void enet_host_destroy(ENetHost* host) {

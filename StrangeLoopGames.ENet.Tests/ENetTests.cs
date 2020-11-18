@@ -205,6 +205,23 @@ namespace StrangeLoopGames.ENet.Tests
             }
         }
 
+        [Test]
+        public void TestErrorCode()
+        {
+            Library.Initialize();
+            try
+            {
+                var serverOne = new Host();
+                serverOne.Create(Address.AnyV4, 0);
+                var serverTwo = new Host();
+                Assert.That(() => serverTwo.Create(serverOne.SocketAddress, 0), Throws.Exception.TypeOf(typeof(ENetError)).With.Property(nameof(ENetError.Code)).EqualTo(ENetErrorCode.SocketBindFailed));
+            }
+            finally
+            {
+                Library.Deinitialize();
+            }
+        }
+
         private void HandleNext(Host host, int timeout, Action<Event> handler = null)
         {
             if (host.Service(timeout, out var netEvent) > 0)
