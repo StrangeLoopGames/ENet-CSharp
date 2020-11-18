@@ -262,8 +262,8 @@ extern "C" {
 	} ENetProtocolCommand;
 
 	typedef enum _ENetProtocolNotifyCode {
-	    ENET_PROTOCOL_NOTIFY_CONNECTIONS_EXCEED = 1
-    } ENetProtocolNotifyCode;
+		ENET_PROTOCOL_NOTIFY_CONNECTIONS_EXCEED = 1
+	} ENetProtocolNotifyCode;
 
 	typedef enum _ENetProtocolFlag {
 		ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE = (1 << 7),
@@ -382,10 +382,10 @@ extern "C" {
 		uint32_t fragmentOffset;
 	} ENET_PACKED ENetProtocolSendFragment;
 
-    typedef struct _ENetProtocolNotify {
-        ENetProtocolCommandHeader header;
-        uint16_t code;
-    } ENET_PACKED ENetProtocolNotify;
+	typedef struct _ENetProtocolNotify {
+		ENetProtocolCommandHeader header;
+		uint16_t code;
+	} ENET_PACKED ENetProtocolNotify;
 
 	typedef union _ENetProtocol {
 		ENetProtocolCommandHeader header;
@@ -421,8 +421,8 @@ extern "C" {
 	} ENetSocketType;
 
 	typedef enum _ENetIPVersion {
-	    ENET_IP_VERSION_4 = PF_INET,
-	    ENET_IP_VERSION_6 = PF_INET6
+		ENET_IP_VERSION_4 = PF_INET,
+		ENET_IP_VERSION_6 = PF_INET6
 	} ENetIPVersion;
 
 	typedef enum _ENetSocketWait {
@@ -690,13 +690,13 @@ extern "C" {
 		size_t maximumWaitingData;
 	} ENetHost;
 
-    typedef enum _ENetError {
-        ENET_ERROR_NONE = 0,
-        ENET_ERROR_PEERS_LIMIT_OUT_OF_BOUND = 1,
-        ENET_ERROR_OUT_OF_MEMORY = 2,
-        ENET_ERROR_SOCKET_CREATE_FAILED = 3,
-        ENET_ERROR_SOCKET_BIND_FAILED = 4
-    } ENetError;
+	typedef enum _ENetError {
+		ENET_ERROR_NONE = 0,
+		ENET_ERROR_PEERS_LIMIT_OUT_OF_BOUND = 1,
+		ENET_ERROR_OUT_OF_MEMORY = 2,
+		ENET_ERROR_SOCKET_CREATE_FAILED = 3,
+		ENET_ERROR_SOCKET_BIND_FAILED = 4
+	} ENetError;
 
 /*
 =======================================================================
@@ -713,7 +713,7 @@ extern "C" {
 	ENET_API int enet_array_is_zeroed(const uint8_t*, int);
 	ENET_API uint32_t enet_time_get(void);
 	ENET_API uint64_t enet_crc64(const ENetBuffer*, int);
-    ENET_API ENetError enet_get_last_error(char*, size_t);
+	ENET_API ENetError enet_get_last_error(char*, size_t);
 
 	ENET_API ENetPacket* enet_packet_create(const void*, size_t, uint32_t);
 	ENET_API ENetPacket* enet_packet_create_offset(const void*, size_t, size_t, uint32_t);
@@ -736,8 +736,8 @@ extern "C" {
 	ENET_API ENetPeer* enet_host_connect(ENetHost*, const ENetAddress*, size_t, uint32_t);
 	ENET_API int enet_host_check_events(ENetHost*, ENetEvent*);
 	ENET_API int enet_host_service(ENetHost*, ENetEvent*, uint32_t);
-    ENET_API int  enet_host_send_raw(ENetHost*, const ENetAddress*, void*, size_t);
-    ENET_API int  enet_host_send_raw_ex(ENetHost *host, const ENetAddress*, uint8_t*, size_t, size_t);
+	ENET_API int  enet_host_send_raw(ENetHost*, const ENetAddress*, void*, size_t);
+	ENET_API int  enet_host_send_raw_ex(ENetHost *host, const ENetAddress*, uint8_t*, size_t, size_t);
 	ENET_API void enet_host_flush(ENetHost*);
 	ENET_API void enet_host_broadcast(ENetHost*, uint8_t, ENetPacket*);
 	ENET_API void enet_host_broadcast_exclude(ENetHost*, uint8_t, ENetPacket*, ENetPeer*);
@@ -781,10 +781,10 @@ extern "C" {
 	ENET_API uint32_t enet_host_get_packets_received(const ENetHost*);
 	ENET_API uint32_t enet_host_get_bytes_sent(const ENetHost*);
 	ENET_API uint32_t enet_host_get_bytes_received(const ENetHost*);
-    ENET_API uint32_t enet_host_get_received_data(ENetHost*, uint8_t**);
-    ENET_API ENetAddress* enet_host_get_received_address_ptr(ENetHost*);
-    ENET_API uint32_t enet_host_get_mtu(ENetHost*);
-    ENET_API int enet_host_get_socket_address(ENetHost*, ENetAddress*);
+	ENET_API uint32_t enet_host_get_received_data(ENetHost*, uint8_t**);
+	ENET_API ENetAddress* enet_host_get_received_address_ptr(ENetHost*);
+	ENET_API uint32_t enet_host_get_mtu(ENetHost*);
+	ENET_API int enet_host_get_socket_address(ENetHost*, ENetAddress*);
 	ENET_API void enet_host_set_max_duplicate_peers(ENetHost*, uint16_t);
 	ENET_API void enet_host_set_intercept_callback(ENetHost*, ENetInterceptCallback);
 	ENET_API void enet_host_set_checksum_callback(ENetHost*, ENetChecksumCallback);
@@ -817,8 +817,8 @@ extern "C" {
 	extern void enet_host_bandwidth_throttle(ENetHost*);
 	extern uint64_t enet_host_random_seed(void);
 
-    extern ENetIPVersion enet_address_get_socket_address(const ENetAddress*, struct sockaddr_in6*, size_t*);
-    extern void enet_address_set_socket_address(ENetAddress*, const struct sockaddr_in6*);
+	extern ENetIPVersion enet_address_get_socket_address(const ENetAddress*, struct sockaddr_in6*, size_t*);
+	extern void enet_address_set_socket_address(ENetAddress*, const struct sockaddr_in6*);
 	extern int enet_peer_throttle(ENetPeer*, uint32_t);
 	extern void enet_peer_reset_queues(ENetPeer*);
 	extern void enet_peer_setup_outgoing_command(ENetPeer*, ENetOutgoingCommand*);
@@ -1035,7 +1035,7 @@ extern "C" {
 				#define ENET_ATOMIC_DEC_BY(variable, delta) __sync_fetch_and_sub((variable), (delta), 1)
 			#endif
 		#undef AT_HAVE_ATOMICS
-    #endif
+	#endif
 
 /*
 =======================================================================
@@ -1043,8 +1043,8 @@ extern "C" {
 =======================================================================
 */
 static struct {
-    ENetError code;
-    char messageBuf[4096];
+	ENetError code;
+	char messageBuf[4096];
 } lastError;
 
 /*
@@ -1054,43 +1054,43 @@ static struct {
  */
 ENetError enet_get_last_error(char *error, size_t errorLength)
 {
-    strcpy_s(error, errorLength, lastError.messageBuf);
-    return lastError.code;
+	strcpy_s(error, errorLength, lastError.messageBuf);
+	return lastError.code;
 }
 
 void enet_set_last_error_message(const char* message) {
-    strcpy_s(lastError.messageBuf, sizeof(lastError.messageBuf), "Max connections count is out of bound.");
+	strcpy_s(lastError.messageBuf, sizeof(lastError.messageBuf), "Max connections count is out of bound.");
 }
 
 void enet_set_last_error_message_from_system() {
 #ifdef _WIN32
-    LPWSTR systemMsg = NULL;
-    if (FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&systemMsg, 0, NULL))
-        WideCharToMultiByte(CP_UTF8, 0, systemMsg, -1, lastError.messageBuf, sizeof(lastError.messageBuf), NULL, NULL);
-    else
-        wsprintfA(lastError.messageBuf, "Format failed: %i", GetLastError());
-    if (systemMsg != NULL)
-        LocalFree(systemMsg);
+	LPWSTR systemMsg = NULL;
+	if (FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, GetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPWSTR)&systemMsg, 0, NULL))
+		WideCharToMultiByte(CP_UTF8, 0, systemMsg, -1, lastError.messageBuf, sizeof(lastError.messageBuf), NULL, NULL);
+	else
+		wsprintfA(lastError.messageBuf, "Format failed: %i", GetLastError());
+	if (systemMsg != NULL)
+		LocalFree(systemMsg);
 #else
-    strcpy_s(lastError.messageBuf, sizeof(lastError.messageBuf), strerror(errno));
+	strcpy_s(lastError.messageBuf, sizeof(lastError.messageBuf), strerror(errno));
 #endif
 }
 
 void enet_set_last_error(const ENetError error)
 {
-    lastError.code = error;
-    lastError.messageBuf[0] = 0;
-    switch(error) {
-        case ENET_ERROR_PEERS_LIMIT_OUT_OF_BOUND:
-            enet_set_last_error_message("Peers limit is more than max peers count.");
-            break;
-        case ENET_ERROR_OUT_OF_MEMORY:
-            enet_set_last_error_message("Out of memory.");
-            break;
-        default:
-            enet_set_last_error_message_from_system();
-            break;
-    }
+	lastError.code = error;
+	lastError.messageBuf[0] = 0;
+	switch(error) {
+		case ENET_ERROR_PEERS_LIMIT_OUT_OF_BOUND:
+			enet_set_last_error_message("Peers limit is more than max peers count.");
+			break;
+		case ENET_ERROR_OUT_OF_MEMORY:
+			enet_set_last_error_message("Out of memory.");
+			break;
+		default:
+			enet_set_last_error_message_from_system();
+			break;
+	}
 }
 
 /*
@@ -1204,7 +1204,7 @@ void enet_set_last_error(const ENetError error)
 	}
 
 	int enet_array_is_zeroed(const uint8_t* array, int length) {
-	    int i;
+		int i;
 
 		for (i = 0; i < length; i++) {
 			if (array[i] != 0)
@@ -1834,18 +1834,18 @@ void enet_set_last_error(const ENetError error)
 	}
 
 	static int enet_protocol_notify_outgoing_peer(ENetHost* host, uint16_t outgoingPeerID, uint16_t notifyCode)
-    {
-	    struct {
-            uint16_t peerID;
-            ENetProtocolNotify notify;
-	    } command;
-        command.peerID = ENET_HOST_TO_NET_16(outgoingPeerID);
-        command.notify.header.channelID = 0;
-        command.notify.header.command = ENET_PROTOCOL_COMMAND_NOTIFY;
-        command.notify.header.reliableSequenceNumber = 0;
-        command.notify.code = notifyCode;
-	    return enet_host_send_raw(host, &host->receivedAddress, &command, sizeof(command));
-    }
+	{
+		struct {
+			uint16_t peerID;
+			ENetProtocolNotify notify;
+		} command;
+		command.peerID = ENET_HOST_TO_NET_16(outgoingPeerID);
+		command.notify.header.channelID = 0;
+		command.notify.header.command = ENET_PROTOCOL_COMMAND_NOTIFY;
+		command.notify.header.reliableSequenceNumber = 0;
+		command.notify.code = notifyCode;
+		return enet_host_send_raw(host, &host->receivedAddress, &command, sizeof(command));
+	}
 
 	static ENetPeer* enet_protocol_handle_connect(ENetHost* host, ENetProtocolHeader* header, ENetProtocol* command) {
 		uint8_t incomingSessionID, outgoingSessionID;
@@ -1873,12 +1873,12 @@ void enet_set_last_error(const ENetError error)
 
 		if (peer == NULL || duplicatePeers >= host->duplicatePeers)
 		{
-            #ifdef ENET_DEBUG
-            perror("Server connections exceed");
-            #endif
-		    enet_protocol_notify_outgoing_peer(host, ENET_NET_TO_HOST_16(command->connect.outgoingPeerID), ENET_PROTOCOL_NOTIFY_CONNECTIONS_EXCEED);
-            return NULL;
-        }
+			#ifdef ENET_DEBUG
+			perror("Server connections exceed");
+			#endif
+			enet_protocol_notify_outgoing_peer(host, ENET_NET_TO_HOST_16(command->connect.outgoingPeerID), ENET_PROTOCOL_NOTIFY_CONNECTIONS_EXCEED);
+			return NULL;
+		}
 
 		if (channelCount > host->channelLimit)
 			channelCount = host->channelLimit;
@@ -2279,14 +2279,14 @@ void enet_set_last_error(const ENetError error)
 	}
 
 	static int enet_protocol_handle_notify(ENetHost* host, ENetPeer* peer, const ENetProtocolNotify* notify, ENetEvent* event)
-    {
-	    event->type = ENET_EVENT_TYPE_NOTIFY;
-	    event->peer = peer;
-	    event->data = notify->code;
-	    if (notify->code == ENET_PROTOCOL_NOTIFY_CONNECTIONS_EXCEED)
-            enet_protocol_dispatch_state(host, peer, ENET_PEER_STATE_ZOMBIE);
-	    return 1;
-    }
+	{
+		event->type = ENET_EVENT_TYPE_NOTIFY;
+		event->peer = peer;
+		event->data = notify->code;
+		if (notify->code == ENET_PROTOCOL_NOTIFY_CONNECTIONS_EXCEED)
+			enet_protocol_dispatch_state(host, peer, ENET_PEER_STATE_ZOMBIE);
+		return 1;
+	}
 
 	static int enet_protocol_handle_disconnect(ENetHost* host, ENetPeer* peer, const ENetProtocol* command) {
 		if (peer->state == ENET_PEER_STATE_DISCONNECTED || peer->state == ENET_PEER_STATE_ZOMBIE || peer->state == ENET_PEER_STATE_ACKNOWLEDGING_DISCONNECT)
@@ -2623,10 +2623,10 @@ void enet_set_last_error(const ENetError error)
 
 					break;
 
-			    case ENET_PROTOCOL_COMMAND_NOTIFY:
-			        if (enet_protocol_handle_notify(host, peer, &command->notify, event))
-			            goto commandError;
-			        break;
+				case ENET_PROTOCOL_COMMAND_NOTIFY:
+					if (enet_protocol_handle_notify(host, peer, &command->notify, event))
+						goto commandError;
+					break;
 
 				default:
 					goto commandError;
@@ -3936,23 +3936,23 @@ void enet_set_last_error(const ENetError error)
 		ENetPeer* currentPeer;
 
 		if (peerCount > ENET_PROTOCOL_MAXIMUM_PEER_ID) {
-            enet_set_last_error(ENET_ERROR_PEERS_LIMIT_OUT_OF_BOUND);
-            goto on_error_noop;
-        }
+			enet_set_last_error(ENET_ERROR_PEERS_LIMIT_OUT_OF_BOUND);
+			goto on_error_noop;
+		}
 
 		host = (ENetHost*)enet_malloc(sizeof(ENetHost));
 
 		if (host == NULL) {
-            enet_set_last_error(ENET_ERROR_OUT_OF_MEMORY);
-            goto on_error_noop;
-        }
+			enet_set_last_error(ENET_ERROR_OUT_OF_MEMORY);
+			goto on_error_noop;
+		}
 
 		memset(host, 0, sizeof(ENetHost));
 
 		host->peers = (ENetPeer*)enet_malloc(peerCount * sizeof(ENetPeer));
 
 		if (host->peers == NULL) {
-            enet_set_last_error(ENET_ERROR_OUT_OF_MEMORY);
+			enet_set_last_error(ENET_ERROR_OUT_OF_MEMORY);
 			goto on_error_after_host_alloc;
 		}
 
@@ -3961,10 +3961,10 @@ void enet_set_last_error(const ENetError error)
 		ENetIPVersion ipVersion = enet_address_is_ip4(address) ? ENET_IP_VERSION_4 : ENET_IP_VERSION_6;
 		host->socket = enet_socket_create(ENET_SOCKET_TYPE_DATAGRAM, ipVersion);
 		if (host->socket == ENET_SOCKET_NULL)
-        {
-		    enet_set_last_error(ENET_ERROR_SOCKET_CREATE_FAILED);
-		    goto on_error_after_peers_alloc;
-        }
+		{
+			enet_set_last_error(ENET_ERROR_SOCKET_CREATE_FAILED);
+			goto on_error_after_peers_alloc;
+		}
 
 		if (ipVersion == ENET_IP_VERSION_6)
 			enet_socket_set_option(host->socket, ENET_SOCKOPT_IPV6_V6ONLY, 0);
@@ -4038,14 +4038,14 @@ void enet_set_last_error(const ENetError error)
 		}
 
 		return host;
-    on_error_after_socket_create:
-        enet_socket_destroy(host->socket);
-    on_error_after_peers_alloc:
-	    enet_free(host->peers);
-    on_error_after_host_alloc:
-        enet_free(host);
-    on_error_noop:
-	    return NULL;
+	on_error_after_socket_create:
+		enet_socket_destroy(host->socket);
+	on_error_after_peers_alloc:
+		enet_free(host->peers);
+	on_error_after_host_alloc:
+		enet_free(host);
+	on_error_noop:
+		return NULL;
 	}
 
 	void enet_host_destroy(ENetHost* host) {
@@ -4144,39 +4144,39 @@ void enet_set_last_error(const ENetError error)
 		return currentPeer;
 	}
 
-    /** Sends raw data to specified address. Useful when you want to send unconnected data using host's socket.
-     *  @param host host sending data
-     *  @param address destination address
-     *  @param data data pointer
-     *  @param dataLength length of data to send
-     *  @retval >=0 bytes sent
-     *  @retval <0 error
-     *  @sa enet_socket_send
-     */
-    int enet_host_send_raw(ENetHost *host, const ENetAddress* address, void* data, size_t dataLength) {
-        ENetBuffer buffer;
-        buffer.data = data;
-        buffer.dataLength = dataLength;
-        return enet_socket_send(host->socket, address, &buffer, 1);
-    }
+	/** Sends raw data to specified address. Useful when you want to send unconnected data using host's socket.
+	 *  @param host host sending data
+	 *  @param address destination address
+	 *  @param data data pointer
+	 *  @param dataLength length of data to send
+	 *  @retval >=0 bytes sent
+	 *  @retval <0 error
+	 *  @sa enet_socket_send
+	 */
+	int enet_host_send_raw(ENetHost *host, const ENetAddress* address, void* data, size_t dataLength) {
+		ENetBuffer buffer;
+		buffer.data = data;
+		buffer.dataLength = dataLength;
+		return enet_socket_send(host->socket, address, &buffer, 1);
+	}
 
-    /** Sends raw data to specified address with extended arguments. Allows to send only part of data, handy for other programming languages.
-     *  I.e. if you have data =- { 0, 1, 2, 3 } and call function as enet_host_send_raw_ex(data, 1, 2) then it will skip 1 byte and send 2 bytes { 1, 2 }.
-     *  @param host host sending data
-     *  @param address destination address
-     *  @param data data pointer
-     *  @param skipBytes number of bytes to skip from start of data
-     *  @param bytesToSend number of bytes to send
-     *  @retval >=0 bytes sent
-     *  @retval <0 error
-     *  @sa enet_socket_send
-     */
-    int enet_host_send_raw_ex(ENetHost *host, const ENetAddress* address, uint8_t* data, size_t skipBytes, size_t bytesToSend) {
-        ENetBuffer buffer;
-        buffer.data = data + skipBytes;
-        buffer.dataLength = bytesToSend;
-        return enet_socket_send(host->socket, address, &buffer, 1);
-    }
+	/** Sends raw data to specified address with extended arguments. Allows to send only part of data, handy for other programming languages.
+	 *  I.e. if you have data =- { 0, 1, 2, 3 } and call function as enet_host_send_raw_ex(data, 1, 2) then it will skip 1 byte and send 2 bytes { 1, 2 }.
+	 *  @param host host sending data
+	 *  @param address destination address
+	 *  @param data data pointer
+	 *  @param skipBytes number of bytes to skip from start of data
+	 *  @param bytesToSend number of bytes to send
+	 *  @retval >=0 bytes sent
+	 *  @retval <0 error
+	 *  @sa enet_socket_send
+	 */
+	int enet_host_send_raw_ex(ENetHost *host, const ENetAddress* address, uint8_t* data, size_t skipBytes, size_t bytesToSend) {
+		ENetBuffer buffer;
+		buffer.data = data + skipBytes;
+		buffer.dataLength = bytesToSend;
+		return enet_socket_send(host->socket, address, &buffer, 1);
+	}
 
 	void enet_host_broadcast(ENetHost* host, uint8_t channelID, ENetPacket* packet) {
 		ENetPeer* currentPeer;
@@ -4405,51 +4405,51 @@ void enet_set_last_error(const ENetError error)
 
 =======================================================================
 */
-    /*
-    * Fills data for either sockarddr_in (if IPv4) or sockaddr_in6 (if IPv6). sinSize will be updated with actual socket address size and then it may be used in any function which works with sockaddr_in.
-    * It returns protocol version for the address.
-    */
-    ENetIPVersion enet_address_get_socket_address(const ENetAddress* address, struct sockaddr_in6* sin6, size_t* sinSize) {
-        memset(sin6, 0, sizeof(struct sockaddr_in6));
-        if (address == NULL) {
-            sin6->sin6_family = AF_INET6;
-            sin6->sin6_port = 0;
-            sin6->sin6_addr = ENET_HOST_ANY;
-            *sinSize = sizeof(struct sockaddr_in6);
-            return ENET_IP_VERSION_6;
-        }
-        else if (enet_address_is_ip4(address)) {
-            struct sockaddr_in* sin = (struct sockaddr_in*)sin6;
-            sin->sin_family = AF_INET;
-            sin->sin_port = ENET_HOST_TO_NET_16(address->port);
-            sin->sin_addr = address->ipv4.ip;
-            *sinSize = sizeof(struct sockaddr_in);
-            return ENET_IP_VERSION_4;
-        }
-        else {
-            sin6->sin6_family = AF_INET6;
-            sin6->sin6_port = ENET_HOST_TO_NET_16(address->port);
-            sin6->sin6_addr = address->ipv6;
-            *sinSize = sizeof(struct sockaddr_in6);
-            return ENET_IP_VERSION_6;
-        }
-    }
+	/*
+	* Fills data for either sockarddr_in (if IPv4) or sockaddr_in6 (if IPv6). sinSize will be updated with actual socket address size and then it may be used in any function which works with sockaddr_in.
+	* It returns protocol version for the address.
+	*/
+	ENetIPVersion enet_address_get_socket_address(const ENetAddress* address, struct sockaddr_in6* sin6, size_t* sinSize) {
+		memset(sin6, 0, sizeof(struct sockaddr_in6));
+		if (address == NULL) {
+			sin6->sin6_family = AF_INET6;
+			sin6->sin6_port = 0;
+			sin6->sin6_addr = ENET_HOST_ANY;
+			*sinSize = sizeof(struct sockaddr_in6);
+			return ENET_IP_VERSION_6;
+		}
+		else if (enet_address_is_ip4(address)) {
+			struct sockaddr_in* sin = (struct sockaddr_in*)sin6;
+			sin->sin_family = AF_INET;
+			sin->sin_port = ENET_HOST_TO_NET_16(address->port);
+			sin->sin_addr = address->ipv4.ip;
+			*sinSize = sizeof(struct sockaddr_in);
+			return ENET_IP_VERSION_4;
+		}
+		else {
+			sin6->sin6_family = AF_INET6;
+			sin6->sin6_port = ENET_HOST_TO_NET_16(address->port);
+			sin6->sin6_addr = address->ipv6;
+			*sinSize = sizeof(struct sockaddr_in6);
+			return ENET_IP_VERSION_6;
+		}
+	}
 
-    /*
-    * Updates ENet address with socket address.
-    */
-    void enet_address_set_socket_address(ENetAddress* address, const struct sockaddr_in6* sin) {
-        if (sin->sin6_family == AF_INET6) {
-            address->ipv6 = sin->sin6_addr;
-            address->port = ENET_NET_TO_HOST_16(sin->sin6_port);
-        } else {
-            struct sockaddr_in *sin4 = (struct sockaddr_in *)sin;
-            address->port = ENET_NET_TO_HOST_16(sin4->sin_port);
-            address->ipv4.ip = sin4->sin_addr;
-            address->ipv4.ffff = 0xffff;
-            memset(&address->ipv4.zeros, 0, sizeof(address->ipv4.zeros));
-        }
-    }
+	/*
+	* Updates ENet address with socket address.
+	*/
+	void enet_address_set_socket_address(ENetAddress* address, const struct sockaddr_in6* sin) {
+		if (sin->sin6_family == AF_INET6) {
+			address->ipv6 = sin->sin6_addr;
+			address->port = ENET_NET_TO_HOST_16(sin->sin6_port);
+		} else {
+			struct sockaddr_in *sin4 = (struct sockaddr_in *)sin;
+			address->port = ENET_NET_TO_HOST_16(sin4->sin_port);
+			address->ipv4.ip = sin4->sin_addr;
+			address->ipv4.ffff = 0xffff;
+			memset(&address->ipv4.zeros, 0, sizeof(address->ipv4.zeros));
+		}
+	}
 
 	int enet_address_set_ip(ENetAddress* address, const char* ip) {
 		int type = AF_INET6;
@@ -4511,13 +4511,13 @@ void enet_set_last_error(const ENetError error)
 		return enet_address_set_ip(address, name);
 	}
 
-    bool enet_address_is_ip4(const ENetAddress* address) {
-        return address->ipv4.ffff == 0xFFFF && enet_array_is_zeroed(address->ipv4.zeros, sizeof(address->ipv4.zeros)) == 0;
-    }
+	bool enet_address_is_ip4(const ENetAddress* address) {
+		return address->ipv4.ffff == 0xFFFF && enet_array_is_zeroed(address->ipv4.zeros, sizeof(address->ipv4.zeros)) == 0;
+	}
 
-    bool enet_address_is_ip6(const ENetAddress* address) {
-        return !enet_address_is_ip4(address);
-    }
+	bool enet_address_is_ip6(const ENetAddress* address) {
+		return !enet_address_is_ip4(address);
+	}
 
 	int enet_address_get_ip(const ENetAddress* address, char* ip, size_t ipLength) {
 		if (enet_address_is_ip4(address)) {
@@ -4697,7 +4697,7 @@ void enet_set_last_error(const ENetError error)
 				return ENET_SOCKET_NULL;
 
 			if (address != NULL) {
-			    enet_address_set_socket_address(address, &sin);
+				enet_address_set_socket_address(address, &sin);
 			}
 
 			return result;
@@ -4721,7 +4721,7 @@ void enet_set_last_error(const ENetError error)
 			memset(&msgHdr, 0, sizeof(struct msghdr));
 
 			if (address != NULL) {
-			    enet_address_get_socket_address(address, &sin, &sinSize);
+				enet_address_get_socket_address(address, &sin, &sinSize);
 				msgHdr.msg_name = &sin;
 				msgHdr.msg_namelen = sinSize;
 			}
@@ -4767,7 +4767,7 @@ void enet_set_last_error(const ENetError error)
 				return -2;
 
 			if (address != NULL) {
-			    enet_address_set_socket_address(address, &sin);
+				enet_address_set_socket_address(address, &sin);
 			}
 
 			return recvLength;
@@ -4967,7 +4967,7 @@ void enet_set_last_error(const ENetError error)
 				return ENET_SOCKET_NULL;
 
 			if (address != NULL) {
-			    enet_address_set_socket_address(address, &sin);
+				enet_address_set_socket_address(address, &sin);
 			}
 
 			return result;
@@ -4988,7 +4988,7 @@ void enet_set_last_error(const ENetError error)
 
 			size_t sinSize = 0;
 			if (address != NULL) {
-			    enet_address_get_socket_address(address, &sin, &sinSize);
+				enet_address_get_socket_address(address, &sin, &sinSize);
 			}
 
 			if (WSASendTo(socket, (LPWSABUF)buffers, (DWORD)bufferCount, &sentLength, 0, address != NULL ? (struct sockaddr*)&sin : NULL, sinSize, NULL, NULL) == SOCKET_ERROR)
@@ -5016,7 +5016,7 @@ void enet_set_last_error(const ENetError error)
 				return -2;
 
 			if (address != NULL) {
-                enet_address_set_socket_address(address, &sin);
+				enet_address_set_socket_address(address, &sin);
 			}
 
 			return (int)recvLength;
@@ -5080,11 +5080,11 @@ void enet_set_last_error(const ENetError error)
 		}
 
 		int enet_socket_bind(ENetSocket socket, const ENetAddress* address) {
-            struct sockaddr_in6 sin;
+			struct sockaddr_in6 sin;
 			size_t sinSize;
 			enet_address_get_socket_address(address, &sin, &sinSize);
-            return ENET_SOCKET_ERROR(bind(socket, (struct sockaddr*)&sin, sinSize));
-        }
+			return ENET_SOCKET_ERROR(bind(socket, (struct sockaddr*)&sin, sinSize));
+		}
 
 /*
 =======================================================================
@@ -5143,31 +5143,31 @@ void enet_set_last_error(const ENetError error)
 		return host->totalReceivedData;
 	}
 
-    /** Gets received data buffer. Returns buffer length.
-    *  @param host host to access recevie buffer
-    *  @param data ouput parameter for recevied data
-    *  @retval buffer length
-    */
-    uint32_t enet_host_get_received_data(ENetHost *host, /*out*/ uint8_t** data) {
-        *data = host->receivedData;
-        return host->receivedDataLength;
-    }
+	/** Gets received data buffer. Returns buffer length.
+	*  @param host host to access recevie buffer
+	*  @param data ouput parameter for recevied data
+	*  @retval buffer length
+	*/
+	uint32_t enet_host_get_received_data(ENetHost *host, /*out*/ uint8_t** data) {
+		*data = host->receivedData;
+		return host->receivedDataLength;
+	}
 
-    ENetAddress * enet_host_get_received_address_ptr(ENetHost *host) {
-        return &host->receivedAddress;
-    }
+	ENetAddress * enet_host_get_received_address_ptr(ENetHost *host) {
+		return &host->receivedAddress;
+	}
 
-    uint32_t enet_host_get_mtu(ENetHost *host) {
-        return host->mtu;
-    }
+	uint32_t enet_host_get_mtu(ENetHost *host) {
+		return host->mtu;
+	}
 
-    /** Gets host's address. Assigns to provided address argument.
-     * @param host host to get address from
-     * @param address destination to save the host's address
-     */
-    int enet_host_get_socket_address(ENetHost* host, ENetAddress* address) {
-        return enet_socket_get_address(host->socket, address);
-    }
+	/** Gets host's address. Assigns to provided address argument.
+	 * @param host host to get address from
+	 * @param address destination to save the host's address
+	 */
+	int enet_host_get_socket_address(ENetHost* host, ENetAddress* address) {
+		return enet_socket_get_address(host->socket, address);
+	}
 
 	void enet_host_set_max_duplicate_peers(ENetHost* host, uint16_t number) {
 		if (number < 1)
@@ -5179,10 +5179,10 @@ void enet_set_last_error(const ENetError error)
 		host->duplicatePeers = number;
 	}
 
-    /** Sets intercept callback for the host.
-     *  @param host host to set a callback
-     *  @param callback intercept callback
-     */
+	/** Sets intercept callback for the host.
+	 *  @param host host to set a callback
+	 *  @param callback intercept callback
+	 */
 	void enet_host_set_intercept_callback(ENetHost* host, ENetInterceptCallback callback) {
 		host->interceptCallback = callback;
 	}
