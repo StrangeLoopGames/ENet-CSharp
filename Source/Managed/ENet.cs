@@ -1043,8 +1043,8 @@ namespace ENet
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
         internal static extern ulong enet_crc64(IntPtr buffers, int bufferCount);
 
-        [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern ENetErrorCode enet_get_last_error(StringBuilder error, IntPtr errorLength);
+        [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
+        internal static extern ENetErrorCode enet_get_last_error([MarshalAs(UnmanagedType.LPUTF8Str)] StringBuilder error, IntPtr errorLength);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int enet_address_set_ip(ref Address address, string ip);
