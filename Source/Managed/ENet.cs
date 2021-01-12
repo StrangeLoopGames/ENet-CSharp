@@ -1011,9 +1011,9 @@ namespace ENet
 		}
 
 		internal static void ThrowLastError() {
-			var buffer = new StringBuilder(4096);
-			var code = Native.enet_get_last_error(buffer, (IntPtr)buffer.Capacity);
-			throw new ENetError(code, buffer.ToString());
+			var buffer = new byte[4096];
+			var code = Native.enet_get_last_error(buffer, (IntPtr)buffer.Length);
+			throw new ENetError(code, Encoding.UTF8.GetString(buffer, 0, Array.IndexOf(buffer, (byte)0)).TrimEnd());
 		}
 	}
 
@@ -1044,7 +1044,7 @@ namespace ENet
         internal static extern ulong enet_crc64(IntPtr buffers, int bufferCount);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
-        internal static extern ENetErrorCode enet_get_last_error([MarshalAs(UnmanagedType.LPUTF8Str)] StringBuilder error, IntPtr errorLength);
+        internal static extern ENetErrorCode enet_get_last_error(byte[] error, IntPtr errorLength);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int enet_address_set_ip(ref Address address, string ip);

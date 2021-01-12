@@ -5,7 +5,7 @@
 
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>net472;netstandard2.1</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>ENet</RootNamespace>
     <LangVersion>7.2</LangVersion>
   </PropertyGroup>
