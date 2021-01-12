@@ -67,7 +67,7 @@ function BuildUitls-DownloadAppVeyorRuntimes([string]$Token = "", [string]$Accou
 }
 
 function BuildUtils-BuildPackage([string]$AppVeyorToken = "", [string]$AccountName = "theSLGjenkins", [string]$BuildId = "") {
-    [Void](MSBuild.exe ENet-CSharp.sln -p:Configuration=Release)
+    [Void](MSBuild.exe ENet-CSharp.sln -restore -p:Configuration=Release)
     [Void](BuildUitls-DownloadAppVeyorRuntimes -Token $AppVeyorToken -AccountName $AccountName -BuildId $BuildId)
 
     $nuspec = "ENet-CSharp.nuspec"
