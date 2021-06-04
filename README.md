@@ -58,7 +58,7 @@ Before starting to work, the library should be initialized using `ENet.Library.I
 After the work is done, deinitialize the library using `ENet.Library.Deinitialize();` function.
 
 ### .NET environment
-##### Start a new server:
+##### Start a new server
 ```c#
 using (Host server = new Host()) {
 	Address address = new Address();
@@ -107,7 +107,7 @@ using (Host server = new Host()) {
 }
 ```
 
-##### Start a new client:
+##### Start a new client
 ```c#
 using (Host client = new Host()) {
 	Address address = new Address();
@@ -159,7 +159,7 @@ using (Host client = new Host()) {
 }
 ```
 
-##### Create and send a new packet:
+##### Create and send a new packet
 ```csharp
 Packet packet = default(Packet);
 byte[] data = new byte[64];
@@ -168,14 +168,14 @@ packet.Create(data);
 peer.Send(channelID, ref packet);
 ```
 
-##### Copy payload from a packet:
+##### Copy payload from a packet
 ```csharp
 byte[] buffer = new byte[1024];
 
 netEvent.Packet.CopyTo(buffer);
 ```
 
-##### Integrate with a custom memory allocator:
+##### Integrate with a custom memory allocator
 ```csharp
 AllocCallback OnMemoryAllocate = (size) => {
 	return Marshal.AllocHGlobal(size);
@@ -407,7 +407,7 @@ Contains a managed pointer to the host.
 
 `Host.Create(Address? address, int peerLimit, int channelLimit, uint incomingBandwidth, uint outgoingBandwidth, int bufferSize)` creates a host for communicating with peers. The bandwidth parameters determine the window size of a connection which limits the number of reliable packets that may be in transit at any given time. ENet will strategically drop packets on specific sides of a connection between hosts to ensure the host's bandwidth is not overwhelmed. The buffer size parameter is used to set the socket buffer size for sending and receiving datagrams. All the parameters are optional except the address and peer limit in cases where the function is used to create a host which will listen for incoming connections.
 
-`Host.PreventConnections(bool state)` prevents access to the host for new incoming connections. This function makes the host completely invisible from outside, any peer that attempts to connect to it will be timed out.
+`Host.PreventConnections(bool state)` prevents access to the host for new incoming connections. This function makes the host completely invisible in network, any peer that attempts to connect to it will be timed out.
 
 `Host.Broadcast(byte channelID, ref Packet packet, Peer[] peers)` queues a packet to be sent to a range of peers or to all peers associated with the host if the optional peers parameter is not used. Any zeroed `Peer` structure in an array will be excluded from the broadcast. Instead of an array, a single `Peer` can be passed to function which will be excluded from the broadcast.
 
@@ -423,7 +423,7 @@ Contains a managed pointer to the host.
 
 `Host.SetMaxDuplicatePeers(ushort number)` limits the maximum allowed duplicate peers from the same host and prevents connection if exceeded. By default set to `Library.maxPeers`, can't be less than one.
 
-`Host.SetInterceptCallback(InterceptCallback callback)` sets the callback to notify when a raw UDP packet is interecepted. A pointer `IntPtr` to a callback can be used instead of a reference to a delegate.
+`Host.SetInterceptCallback(InterceptCallback callback)` sets the callback to notify when a raw UDP packet is intercepted. A pointer `IntPtr` to a callback can be used instead of a reference to a delegate.
 
 `Host.SetChecksumCallback(ChecksumCallback callback)` sets the callback to notify when a checksum should be computed. A pointer `IntPtr` to a callback can be used instead of a reference to a delegate.
 

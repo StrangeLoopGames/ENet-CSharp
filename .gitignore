@@ -6,3 +6,4 @@ obj
 .idea
 *.nupkg
 .DS_Store
+Source/Native/build

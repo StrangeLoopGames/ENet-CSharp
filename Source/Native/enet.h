@@ -31,7 +31,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 4
-#define ENET_VERSION_PATCH 5
+#define ENET_VERSION_PATCH 7
 #define ENET_VERSION_CREATE(major, minor, patch) (((major) << 16) | ((minor) << 8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version) >> 16) & 0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version) >> 8) & 0xFF)
@@ -2823,9 +2823,9 @@ void enet_set_last_error(const ENetError error)
 		ENetBuffer* buffer = &host->buffers[host->bufferCount];
 		ENetOutgoingCommand* outgoingCommand;
 		ENetListIterator currentCommand;
-		ENetChannel* channel;
-		uint16_t reliableWindow;
-		size_t commandSize;
+		ENetChannel* channel = NULL;
+		uint16_t reliableWindow = 0;
+		size_t commandSize = 0;
 		int windowExceeded = 0, windowWrap = 0, canPing = 1;
 		currentCommand = enet_list_begin(&peer->outgoingCommands);
 
@@ -2837,7 +2837,7 @@ void enet_set_last_error(const ENetError error)
 				reliableWindow = outgoingCommand->reliableSequenceNumber / ENET_PEER_RELIABLE_WINDOW_SIZE;
 
 				if (channel != NULL) {
-					if (!windowWrap && outgoingCommand->sendAttempts < 1 && !(outgoingCommand->reliableSequenceNumber % ENET_PEER_RELIABLE_WINDOW_SIZE) && (channel->reliableWindows[(reliableWindow + ENET_PEER_RELIABLE_WINDOWS - 1) % ENET_PEER_RELIABLE_WINDOWS] >= ENET_PEER_RELIABLE_WINDOW_SIZE || channel->usedReliableWindows & ((((1 << (ENET_PEER_FREE_RELIABLE_WINDOWS + 1)) - 1) << reliableWindow) | (((1 << (ENET_PEER_FREE_RELIABLE_WINDOWS + 1)) - 1) >> (ENET_PEER_RELIABLE_WINDOWS - reliableWindow)))))
+					if (!windowWrap && outgoingCommand->sendAttempts < 1 && !(outgoingCommand->reliableSequenceNumber % ENET_PEER_RELIABLE_WINDOW_SIZE) && (channel->reliableWindows[(reliableWindow + ENET_PEER_RELIABLE_WINDOWS - 1) % ENET_PEER_RELIABLE_WINDOWS] >= ENET_PEER_RELIABLE_WINDOW_SIZE || channel->usedReliableWindows & ((((1 << (ENET_PEER_FREE_RELIABLE_WINDOWS + 2)) - 1) << reliableWindow) | (((1 << (ENET_PEER_FREE_RELIABLE_WINDOWS + 2)) - 1) >> (ENET_PEER_RELIABLE_WINDOWS - reliableWindow)))))
 						windowWrap = 1;
 
 					if (windowWrap) {
@@ -2981,6 +2981,9 @@ void enet_set_last_error(const ENetError error)
 				host->commandCount = 0;
 				host->bufferCount = 1;
 				host->packetSize = sizeof(ENetProtocolHeader);
+
+				if (host->checksumCallback != NULL)
+					host->packetSize += sizeof(enet_checksum);
 
 				if (!enet_list_empty(&currentPeer->acknowledgements))
 					enet_protocol_send_acknowledgements(host, currentPeer);
@@ -3219,14 +3222,15 @@ void enet_set_last_error(const ENetError error)
 	}
 
 	int enet_peer_send(ENetPeer* peer, uint8_t channelID, ENetPacket* packet) {
-		ENetChannel* channel = &peer->channels[channelID];
+		ENetChannel* channel;
 		ENetProtocol command;
 		size_t fragmentLength;
 
 		if (peer->state != ENET_PEER_STATE_CONNECTED || channelID >= peer->channelCount || packet->dataLength > peer->host->maximumPacketSize)
 			return -1;
 
-		fragmentLength = peer->mtu - sizeof(ENetProtocolHeader) - sizeof(ENetProtocolSendFragment);
+ 		channel = &peer->channels[channelID];
+		fragmentLength = peer->mtu - sizeof(ENetProtocolHeader) - sizeof(ENetProtocolSendFragment) - sizeof(ENetProtocolAcknowledge);
 
 		if (peer->host->checksumCallback != NULL)
 			fragmentLength -= sizeof(enet_checksum);
