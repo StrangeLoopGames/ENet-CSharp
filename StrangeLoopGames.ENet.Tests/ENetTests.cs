@@ -222,6 +222,58 @@ namespace StrangeLoopGames.ENet.Tests
             }
         }
 
+        [Test]
+        public void TestConnectionEventData()
+        {
+            Library.Initialize();
+            try
+            {
+                void ConnectRequestCallback(NativePeer peer, ref uint data) => data = 777;
+
+                var server = new Host();
+                server.Create(Address.AnyV4, 10);
+                server.SetConnectRequestCallback(ConnectRequestCallback);
+
+                var client = new Host();
+                client.Create(Address.AnyV4, 1);
+                var address = new Address { Port = server.SocketAddress.Port };
+                address.SetIP("127.0.0.1");
+                client.Connect(address, 0, 777);
+
+                var maxAttempts       = 100;
+                var serverConnectData = 0u;
+                var clientConnectData = 0u;
+                var clientConnected   = false;
+                var serverConnected   = false;
+                while (!(clientConnected && serverConnected) && maxAttempts-- > 0)
+                {
+                    this.HandleNext(client, 0, e =>
+                    {
+                        if (e.Type == EventType.Connect)
+                        {
+                            clientConnectData = e.Data;
+                            clientConnected   = true;
+                        }
+                    });
+                    this.HandleNext(server, 1, e =>
+                    {
+                        if (e.Type == EventType.Connect)
+                        {
+                            serverConnectData = e.Data;
+                            serverConnected   = true;
+                        }
+                    });
+                }
+                Assert.That(clientConnected, Is.True);
+                Assert.That(serverConnectData, Is.EqualTo(777));
+                Assert.That(clientConnectData, Is.EqualTo(777));
+            }
+            finally
+            {
+                Library.Deinitialize();
+            }
+        }
+
         private void HandleNext(Host host, int timeout, Action<Event> handler = null)
         {
             if (host.Service(timeout, out var netEvent) > 0)

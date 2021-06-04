@@ -117,6 +117,8 @@ namespace ENet
 	public delegate int InterceptCallback(ref Event @event, ref Address address, IntPtr receivedData, int receivedDataLength);
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 	public delegate ulong ChecksumCallback(IntPtr buffers, int bufferCount);
+	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+	public delegate void ConnectRequestCallback(NativePeer peer, ref uint data);
 
 	internal static class ArrayPool {
 		[ThreadStatic]
@@ -711,6 +713,19 @@ namespace ENet
 			Native.enet_host_set_checksum_callback(nativeHost, Marshal.GetFunctionPointerForDelegate(callback));
 		}
 
+		public void SetConnectRequestCallback(IntPtr callback) {
+			ThrowIfNotCreated();
+
+			Native.enet_host_set_connect_request_callback(nativeHost, callback);
+		}
+
+		/// <summary>Sets callback which called when connection initiated to peer. Peer may set data which will be send as client's connect event data.</summary>
+		public void SetConnectRequestCallback(ConnectRequestCallback callback) {
+			ThrowIfNotCreated();
+
+			Native.enet_host_set_connect_request_callback(nativeHost, Marshal.GetFunctionPointerForDelegate(callback));
+		}
+
 		public void Flush() {
 			ThrowIfNotCreated();
 
@@ -718,6 +733,14 @@ namespace ENet
 		}
 
 		public uint MTU => Native.enet_host_get_mtu(this.nativeHost);
+	}
+
+	public readonly struct NativePeer
+	{
+#pragma warning disable 649
+		private readonly IntPtr peer; // initialized by marshaler when received from Native code
+#pragma warning restore 649
+		public Peer AsPeer() => new Peer(peer);
 	}
 
 	public struct Peer {
@@ -1150,6 +1173,9 @@ namespace ENet
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
         internal static extern void enet_host_set_checksum_callback(IntPtr host, IntPtr callback);
+
+        [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern void enet_host_set_connect_request_callback(IntPtr host, IntPtr callback);
 
         [DllImport(nativeLibrary, CallingConvention = CallingConvention.Cdecl)]
         internal static extern uint enet_host_get_mtu(IntPtr host);

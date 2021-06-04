@@ -346,6 +346,7 @@ extern "C" {
 		uint32_t packetThrottleAcceleration;
 		uint32_t packetThrottleDeceleration;
 		uint32_t connectID;
+		uint32_t data;
 	} ENET_PACKED ENetProtocolVerifyConnect;
 
 	typedef struct _ENetProtocolBandwidthLimit {
@@ -666,6 +667,9 @@ extern "C" {
 
 	typedef int (ENET_CALLBACK *ENetInterceptCallback)(ENetEvent* event, ENetAddress* address, uint8_t* receivedData, int receivedDataLength);
 
+	/* Callback which called when connection initiated to peer. Peer may set connectData which will be set to client's connect event data.*/
+	typedef int (ENET_CALLBACK *ENetConnectRequestCallback)(ENetPeer* peer, uint32_t* connectData);
+
 	typedef struct _ENetHost {
 		ENetSocket socket;
 		ENetAddress address;
@@ -693,6 +697,7 @@ extern "C" {
 		ENetBuffer buffers[ENET_BUFFER_MAXIMUM];
 		size_t bufferCount;
 		ENetChecksumCallback checksumCallback;
+		ENetConnectRequestCallback connectRequestCallback;
 		uint8_t packetData[2][ENET_PROTOCOL_MAXIMUM_MTU];
 		ENetAddress receivedAddress;
 		uint8_t* receivedData;
@@ -803,6 +808,7 @@ extern "C" {
 	ENET_API void enet_host_set_max_duplicate_peers(ENetHost*, uint16_t);
 	ENET_API void enet_host_set_intercept_callback(ENetHost*, ENetInterceptCallback);
 	ENET_API void enet_host_set_checksum_callback(ENetHost*, ENetChecksumCallback);
+	ENET_API void enet_host_set_connect_request_callback(ENetHost*, ENetConnectRequestCallback);
 
 	ENET_API uint32_t enet_peer_get_id(const ENetPeer*);
 	ENET_API int enet_peer_get_ip(const ENetPeer*, char*, size_t);
@@ -1989,6 +1995,10 @@ void enet_set_last_error(const ENetError error)
 		verifyCommand.verifyConnect.packetThrottleAcceleration = ENET_HOST_TO_NET_32(peer->packetThrottleAcceleration);
 		verifyCommand.verifyConnect.packetThrottleDeceleration = ENET_HOST_TO_NET_32(peer->packetThrottleDeceleration);
 		verifyCommand.verifyConnect.connectID = peer->connectID;
+		verifyCommand.verifyConnect.data = 0;
+		if (host->connectRequestCallback != NULL) {
+			host->connectRequestCallback(peer, &verifyCommand.verifyConnect.data);
+		}
 
 		enet_peer_queue_outgoing_command(peer, &verifyCommand, NULL, 0, 0);
 
@@ -2471,6 +2481,7 @@ void enet_set_last_error(const ENetError error)
 
 		peer->incomingBandwidth = ENET_NET_TO_HOST_32(command->verifyConnect.incomingBandwidth);
 		peer->outgoingBandwidth = ENET_NET_TO_HOST_32(command->verifyConnect.outgoingBandwidth);
+		peer->eventData = command->verifyConnect.data;
 
 		enet_protocol_notify_connect(host, peer, event);
 
@@ -4023,6 +4034,7 @@ void enet_set_last_error(const ENetError error)
 		host->commandCount = 0;
 		host->bufferCount = 0;
 		host->checksumCallback = NULL;
+		host->connectRequestCallback = NULL;
 		host->receivedAddress.ipv6 = ENET_HOST_ANY;
 		host->receivedAddress.port = 0;
 		host->receivedData = NULL;
@@ -5206,6 +5218,10 @@ void enet_set_last_error(const ENetError error)
 
 	void enet_host_set_checksum_callback(ENetHost* host, ENetChecksumCallback callback) {
 		host->checksumCallback = callback;
+	}
+
+	void enet_host_set_connect_request_callback(ENetHost* host, ENetConnectRequestCallback callback) {
+		host->connectRequestCallback = callback;
 	}
 
 	uint32_t enet_peer_get_id(const ENetPeer* peer) {
