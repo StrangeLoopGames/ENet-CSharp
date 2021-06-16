@@ -6,16 +6,21 @@ image:
 platform:
   - x86
   - x64
+  - ARM64
 configuration: Release
 environment:
   TARGET_FRAMEFORK: netcoreapp3.1
 
 matrix:
   exclude:
+    - image: Visual Studio 2019
+      platform: ARM64
     - image: Ubuntu
       platform: x86
     - image: macOS
       platform: x86
+    - image: macOS
+      platform: ARM64
 
 for:
   - matrix:

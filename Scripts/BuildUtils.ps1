@@ -54,6 +54,7 @@ function BuildUitls-DownloadAppVeyorRuntimes([string]$Token = "", [string]$Accou
                 "Image: Visual Studio 2019; Platform: x86" { "win-x86" }
                 "Image: Visual Studio 2019; Platform: x64" { "win-x64" }
                 "Image: Ubuntu; Platform: x64" { "linux-x64" }
+                "Image: Ubuntu; Platform: ARM64" { "linux-arm64" }
                 "Image: macOS; Platform: x64" { "osx-x64" }
             }
             $artifactUri = "$apiUrl/buildjobs/$jobId/artifacts/$artifactFileName"
