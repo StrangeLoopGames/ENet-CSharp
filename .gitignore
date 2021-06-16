@@ -7,3 +7,5 @@ obj
 *.nupkg
 .DS_Store
 Source/Native/build
+Source/Native/out
+/.vs
